@@ -1,0 +1,271 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String?
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(VIEWER)
+  isActive     Boolean  @default(true)
+  organizationId String?
+  communityId   String?
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  community    Community? @relation(fields: [communityId], references: [id], onDelete: SetNull)
+  assignedReports Report[] @relation("ReportAssignee")
+  reportComments ReportComment[]
+  reportActivities ReportActivity[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([organizationId, role])
+  @@index([communityId])
+  @@index([isActive, role])
+}
+
+model Notice {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  category    String
+  isFeatured  Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  organizationId String?
+  communityId   String?
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  community    Community? @relation(fields: [communityId], references: [id], onDelete: SetNull)
+  publishedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([organizationId, publishedAt])
+  @@index([communityId, publishedAt])
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  location    String
+  startsAt    DateTime
+  imageUrl    String?
+  isActive    Boolean  @default(true)
+  organizationId String?
+  communityId   String?
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  community    Community? @relation(fields: [communityId], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([organizationId, startsAt])
+  @@index([communityId, startsAt])
+}
+
+model Report {
+  id             String         @id @default(cuid())
+  title          String
+  description    String
+  category       ReportCategory
+  severity       ReportSeverity
+  status         ReportStatus   @default(OPEN)
+  priority       ReportPriority @default(MEDIUM)
+  address        String?
+  neighborhood   String?
+  latitude       Decimal?       @db.Decimal(10, 7)
+  longitude      Decimal?       @db.Decimal(10, 7)
+  imageUrl       String?
+  managerComment String?
+  organizationId String?
+  communityId    String?
+  assignedToUserId String?
+  submittedByName String?
+  submittedByEmail String?
+  submittedByPhone String?
+  allowEmailUpdates Boolean @default(false)
+  allowWhatsappUpdates Boolean @default(false)
+  relevantUpdatedAt DateTime @default(now())
+  lastStatusChangedAt DateTime @default(now())
+  lastActivityAt DateTime @default(now())
+  firstResponseDueAt DateTime?
+  resolutionDueAt DateTime?
+  closedAt DateTime?
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  community Community? @relation(fields: [communityId], references: [id], onDelete: SetNull)
+  assignedTo User? @relation("ReportAssignee", fields: [assignedToUserId], references: [id], onDelete: SetNull)
+  comments ReportComment[]
+  activities ReportActivity[]
+  notifications NotificationDelivery[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([organizationId, status, priority, lastActivityAt])
+  @@index([communityId, status, lastActivityAt])
+  @@index([assignedToUserId, status])
+  @@index([status, createdAt])
+  @@index([priority, createdAt])
+  @@index([relevantUpdatedAt])
+  @@index([lastActivityAt])
+}
+
+enum UserRole {
+  VIEWER
+  VOLUNTEER
+  EDITOR
+  MANAGER
+  ADMIN
+}
+
+model Organization {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  communities Community[]
+  users       User[]
+  notices     Notice[]
+  events      Event[]
+  reports     Report[]
+  notifications NotificationDelivery[]
+}
+
+model Community {
+  id             String   @id @default(cuid())
+  organizationId String
+  slug           String
+  name           String
+  description    String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  users          User[]
+  notices        Notice[]
+  events         Event[]
+  reports        Report[]
+
+  @@unique([organizationId, slug])
+  @@index([organizationId, isActive])
+}
+
+model ReportComment {
+  id           String   @id @default(cuid())
+  reportId      String
+  authorUserId  String?
+  authorName    String?
+  body          String
+  isInternal    Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  report        Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  authorUser    User?    @relation(fields: [authorUserId], references: [id], onDelete: SetNull)
+
+  @@index([reportId, createdAt])
+  @@index([authorUserId, createdAt])
+}
+
+model ReportActivity {
+  id           String             @id @default(cuid())
+  reportId      String
+  actorUserId   String?
+  type          ReportActivityType
+  fromStatus    ReportStatus?
+  toStatus      ReportStatus?
+  message       String?
+  metadata      Json?
+  createdAt     DateTime          @default(now())
+  report        Report            @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  actorUser     User?             @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([reportId, createdAt])
+  @@index([actorUserId, createdAt])
+  @@index([type, createdAt])
+}
+
+model NotificationDelivery {
+  id             String               @id @default(cuid())
+  reportId        String
+  organizationId  String?
+  channel         NotificationChannel
+  status          NotificationStatus  @default(PENDING)
+  recipient       String
+  templateKey     String?
+  payload         Json?
+  scheduledAt     DateTime?
+  lastAttemptAt   DateTime?
+  sentAt          DateTime?
+  errorMessage    String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  report          Report              @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  organization    Organization?       @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
+  @@index([reportId, status, createdAt])
+  @@index([organizationId, status, createdAt])
+  @@index([channel, status, scheduledAt])
+}
+
+enum ReportActivityType {
+  CREATED
+  STATUS_CHANGED
+  PRIORITY_CHANGED
+  ASSIGNED
+  UNASSIGNED
+  COMMENT_ADDED
+  INTERNAL_NOTE_ADDED
+  PUBLIC_UPDATE_EDITED
+  NOTIFICATION_QUEUED
+  NOTIFICATION_SENT
+}
+
+enum NotificationChannel {
+  EMAIL
+  WHATSAPP
+}
+
+enum NotificationStatus {
+  PENDING
+  PROCESSING
+  SENT
+  FAILED
+  CANCELED
+}
+
+enum ReportCategory {
+  INFRASTRUCTURE
+  LIGHTING
+  CLEANING
+  ACCESSIBILITY
+  SECURITY
+  OTHER
+}
+
+enum ReportSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum ReportStatus {
+  OPEN
+  IN_REVIEW
+  IN_PROGRESS
+  RESOLVED
+  ARCHIVED
+}
+
+enum ReportPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}

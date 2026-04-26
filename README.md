@@ -150,6 +150,8 @@ git push -u origin main
 
 - Importe o repositório GitHub.
 - Selecione o framework `Next.js`.
+- `Root Directory`: deixe como `.` porque o `package.json` está na raiz deste repositório.
+- Se no painel da Vercel o projeto tiver sido apontado para uma subpasta por engano, ajuste o `Root Directory` para a pasta que contém `package.json`, `app/` e `prisma/`.
 - Use `npm run build` como build command.
 - Mantenha o output padrão do Next.js.
 
@@ -214,6 +216,13 @@ npm run build
 - `AUTH_SECRET`
 - `NEXT_PUBLIC_APP_NAME`
 - `NEXT_PUBLIC_SITE_URL`
+
+Observações importantes para evitar `404` em produção:
+
+- Não use `localhost` em variáveis públicas de produção.
+- Não dependa do `.env` local na Vercel; configure as variáveis no painel do projeto.
+- As rotas públicas `/`, `/portal`, `/reports`, `/report` e `/login` possuem fallback visual e não devem depender do banco para abrir.
+- O `middleware` protege apenas `/admin` e `/api/admin`.
 
 6. Depois do deploy, rodar migration de produção:
 
