@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { requireAdminSession } from "@/lib/auth/server";
 import { siteConfig } from "@/lib/site-config";
 
 type SettingsField = {
@@ -68,7 +69,9 @@ const settingsFields: SettingsField[] = [
   },
 ] as const;
 
-export default function AdminSettingsPage() {
+export default async function AdminSettingsPage() {
+  await requireAdminSession();
+
   return (
     <AdminPageShell
       eyebrow="Configurações"

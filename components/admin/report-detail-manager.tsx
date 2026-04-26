@@ -37,7 +37,7 @@ import {
 import { getReportActivityLabel } from "@/lib/reports";
 import { adminReportUpdateSchema, type AdminReportUpdateInput } from "@/lib/validations/report";
 
-type UserRoleValue = "VIEWER" | "VOLUNTEER" | "EDITOR" | "MANAGER" | "ADMIN";
+type UserRoleValue = "ADMIN" | "ASSISTANT";
 
 type ReportDetailManagerProps = {
   assignableUsers: Array<{

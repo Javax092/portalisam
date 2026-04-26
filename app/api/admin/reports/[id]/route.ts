@@ -22,7 +22,7 @@ export async function GET(_: Request, { params }: RouteProps) {
 }
 
 export async function PATCH(request: Request, { params }: RouteProps) {
-  const session = await requireAdminApiSession(UserRole.MANAGER);
+  const session = await requireAdminApiSession(UserRole.ASSISTANT);
   if (session instanceof NextResponse) return session;
 
   const body = await request.json().catch(() => null);

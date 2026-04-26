@@ -32,11 +32,8 @@ export const reportPriorityLabels: Record<ReportPriority, string> = {
 };
 
 export const userRoleLabels: Record<UserRole, string> = {
-  VIEWER: "Viewer",
-  VOLUNTEER: "Volunteer",
-  EDITOR: "Editor",
-  MANAGER: "Manager",
   ADMIN: "Admin",
+  ASSISTANT: "Assistente",
 };
 
 export const categoryOptions = Object.entries(reportCategoryLabels).map(([value, label]) => ({

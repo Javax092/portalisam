@@ -10,7 +10,6 @@ import {
   UserRole,
 } from "@prisma/client";
 
-import { authConfig } from "../lib/auth/config";
 import { hashPassword } from "../lib/auth/password";
 import { getReportSlaWindow } from "../lib/reports";
 
@@ -53,6 +52,16 @@ type EventSeed = {
   startsAt: Date;
 };
 
+function getRequiredSeedPassword(name: "ADMIN_DEFAULT_PASSWORD" | "ASSISTANT_DEFAULT_PASSWORD") {
+  const value = process.env[name]?.trim();
+
+  if (!value) {
+    throw new Error(`A variavel ${name} e obrigatoria para executar o seed.`);
+  }
+
+  return value;
+}
+
 async function main() {
   if (!process.env.DATABASE_URL) {
     throw new Error(
@@ -60,15 +69,19 @@ async function main() {
     );
   }
 
-  const adminEmail = authConfig.adminSeedEmail.toLowerCase();
-  const passwordHash = await hashPassword(authConfig.adminSeedPassword);
+  const adminEmail = "admin@isam.org";
+  const assistantEmail = "assistente@isam.org";
+  const [adminPasswordHash, assistantPasswordHash] = await Promise.all([
+    hashPassword(getRequiredSeedPassword("ADMIN_DEFAULT_PASSWORD")),
+    hashPassword(getRequiredSeedPassword("ASSISTANT_DEFAULT_PASSWORD")),
+  ]);
 
   const organization = await prisma.organization.upsert({
     where: { slug: "promorar-conectado" },
-    update: { name: "Promorar Conectado" },
+    update: { name: "ISAM" },
     create: {
       slug: "promorar-conectado",
-      name: "Promorar Conectado",
+      name: "ISAM",
     },
   });
 
@@ -91,21 +104,21 @@ async function main() {
     },
   });
 
-  const [adminUser, managerUser, editorUser, volunteerUser] = await Promise.all([
+  const [adminUser, assistantUser] = await Promise.all([
     prisma.user.upsert({
       where: { email: adminEmail },
       update: {
-        name: "Administrador",
-        passwordHash,
+        name: "Admin principal",
+        passwordHash: adminPasswordHash,
         role: UserRole.ADMIN,
         isActive: true,
         organizationId: organization.id,
         communityId: community.id,
       },
       create: {
-        name: "Administrador",
+        name: "Admin principal",
         email: adminEmail,
-        passwordHash,
+        passwordHash: adminPasswordHash,
         role: UserRole.ADMIN,
         isActive: true,
         organizationId: organization.id,
@@ -113,66 +126,34 @@ async function main() {
       },
     }),
     prisma.user.upsert({
-      where: { email: "gestao@promorar.local" },
+      where: { email: assistantEmail },
       update: {
-        name: "Gestora Comunitaria",
-        passwordHash,
-        role: UserRole.MANAGER,
+        name: "Assistente do admin",
+        passwordHash: assistantPasswordHash,
+        role: UserRole.ASSISTANT,
         isActive: true,
         organizationId: organization.id,
         communityId: community.id,
       },
       create: {
-        name: "Gestora Comunitaria",
-        email: "gestao@promorar.local",
-        passwordHash,
-        role: UserRole.MANAGER,
-        isActive: true,
-        organizationId: organization.id,
-        communityId: community.id,
-      },
-    }),
-    prisma.user.upsert({
-      where: { email: "editor@promorar.local" },
-      update: {
-        name: "Editor de Conteudo",
-        passwordHash,
-        role: UserRole.EDITOR,
-        isActive: true,
-        organizationId: organization.id,
-        communityId: community.id,
-      },
-      create: {
-        name: "Editor de Conteudo",
-        email: "editor@promorar.local",
-        passwordHash,
-        role: UserRole.EDITOR,
-        isActive: true,
-        organizationId: organization.id,
-        communityId: community.id,
-      },
-    }),
-    prisma.user.upsert({
-      where: { email: "voluntario@promorar.local" },
-      update: {
-        name: "Voluntario de Campo",
-        passwordHash,
-        role: UserRole.VOLUNTEER,
-        isActive: true,
-        organizationId: organization.id,
-        communityId: community.id,
-      },
-      create: {
-        name: "Voluntario de Campo",
-        email: "voluntario@promorar.local",
-        passwordHash,
-        role: UserRole.VOLUNTEER,
+        name: "Assistente do admin",
+        email: assistantEmail,
+        passwordHash: assistantPasswordHash,
+        role: UserRole.ASSISTANT,
         isActive: true,
         organizationId: organization.id,
         communityId: community.id,
       },
     }),
   ]);
+
+  await prisma.user.deleteMany({
+    where: {
+      email: {
+        notIn: [adminEmail, assistantEmail],
+      },
+    },
+  });
 
   const noticeSeeds: NoticeSeed[] = [
     {
@@ -328,7 +309,7 @@ async function main() {
       latitude: "-3.1218000",
       longitude: "-60.0197000",
       managerComment: "Registro enviado para avaliacao inicial com apoio das liderancas locais e segue em acompanhamento.",
-      assignedToUserId: managerUser.id,
+      assignedToUserId: assistantUser.id,
       submittedByName: "Maria da Silva",
       submittedByEmail: "maria@bairro.local",
       allowEmailUpdates: true,
@@ -368,7 +349,7 @@ async function main() {
       latitude: null,
       longitude: null,
       managerComment: "Moradores organizaram um ponto de apoio enquanto aguardam solucao definitiva e a demanda segue visivel no acompanhamento.",
-      assignedToUserId: editorUser.id,
+      assignedToUserId: assistantUser.id,
       submittedByName: "Lucia Ramos",
       allowEmailUpdates: false,
       internalComment: "Manter acompanhamento visual no mapa mesmo sem coordenadas.",
@@ -387,7 +368,7 @@ async function main() {
       latitude: "-3.1187000",
       longitude: "-60.0204000",
       managerComment: "Demanda priorizada para levantamento tecnico e proposta de adequacao com foco em acesso digno.",
-      assignedToUserId: managerUser.id,
+      assignedToUserId: assistantUser.id,
       submittedByName: "Ana Beatriz",
       submittedByEmail: "ana@bairro.local",
       allowEmailUpdates: true,
@@ -427,7 +408,7 @@ async function main() {
       latitude: "-3.1199000",
       longitude: "-60.0211000",
       managerComment: "A equipe comunitaria informou que o reparo emergencial ja foi realizado e o fluxo de passagem foi normalizado.",
-      assignedToUserId: managerUser.id,
+      assignedToUserId: assistantUser.id,
       submittedByName: "Renata Souza",
       submittedByEmail: "renata@bairro.local",
       allowEmailUpdates: true,
@@ -504,7 +485,7 @@ async function main() {
     await prisma.reportActivity.create({
       data: {
         reportId: report.id,
-        actorUserId: volunteerUser.id,
+        actorUserId: assistantUser.id,
         type: ReportActivityType.CREATED,
         message: "Ocorrencia inserida pela base de seed como simulacao de entrada do portal publico.",
         createdAt,
@@ -514,7 +495,7 @@ async function main() {
     await prisma.reportComment.create({
       data: {
         reportId: report.id,
-        authorUserId: managerUser.id,
+        authorUserId: assistantUser.id,
         body: reportSeed.internalComment,
         isInternal: true,
         createdAt: new Date(createdAt.getTime() + 30 * 60 * 1000),
@@ -525,7 +506,7 @@ async function main() {
       await prisma.reportComment.create({
         data: {
           reportId: report.id,
-          authorUserId: managerUser.id,
+          authorUserId: assistantUser.id,
           body: reportSeed.managerComment,
           isInternal: false,
           createdAt: new Date(createdAt.getTime() + 60 * 60 * 1000),
@@ -549,7 +530,7 @@ async function main() {
       await prisma.reportActivity.create({
         data: {
           reportId: report.id,
-          actorUserId: managerUser.id,
+          actorUserId: assistantUser.id,
           type: ReportActivityType.STATUS_CHANGED,
           fromStatus: ReportStatus.OPEN,
           toStatus: reportSeed.status,
@@ -579,7 +560,7 @@ async function main() {
       await prisma.reportActivity.create({
         data: {
           reportId: report.id,
-          actorUserId: managerUser.id,
+          actorUserId: assistantUser.id,
           type: ReportActivityType.NOTIFICATION_QUEUED,
           message: "Atualizacao preparada para envio ao morador.",
           createdAt: new Date(createdAt.getTime() + 90 * 60 * 1000),
@@ -590,10 +571,10 @@ async function main() {
 
   console.log("Seed concluido com sucesso.");
   console.log(`Admin: ${adminEmail}`);
-  console.log(`Senha: ${authConfig.adminSeedPassword}`);
-  console.log("Perfis criados: admin, manager, editor e volunteer.");
+  console.log(`Assistente: ${assistantEmail}`);
+  console.log("Perfis criados: admin principal e assistente do admin.");
   console.log("Base sincronizada com organizacao/comunidade padrao, 4 avisos, 4 eventos e 6 ocorrencias.");
-  console.log("Este seed e idempotente para os dados demo persistidos no banco.");
+  console.log("Este seed e idempotente para os dados demo persistidos no banco e remove usuarios fora da dupla interna.");
   console.log("Apoiadores demo permanecem estaticos no frontend e nao geram duplicacao no banco.");
 }
 

@@ -5,7 +5,7 @@ const whatsappAdsMessage =
   "Olá! Quero apoiar a ONG ISAM e saber como anunciar no portal ISAM Conectado.";
 
 function getSiteUrl() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
 
   if (siteUrl) {
     return siteUrl;

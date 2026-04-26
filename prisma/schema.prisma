@@ -5,7 +5,6 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -13,7 +12,7 @@ model User {
   name         String?
   email        String   @unique
   passwordHash String
-  role         UserRole @default(VIEWER)
+  role         UserRole
   isActive     Boolean  @default(true)
   organizationId String?
   communityId   String?
@@ -115,11 +114,8 @@ model Report {
 }
 
 enum UserRole {
-  VIEWER
-  VOLUNTEER
-  EDITOR
-  MANAGER
   ADMIN
+  ASSISTANT
 }
 
 model Organization {

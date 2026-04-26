@@ -65,7 +65,7 @@ export async function getCurrentUser() {
   }
 }
 
-export async function requireBackofficeSession(minimumRole: UserRole = UserRole.ADMIN) {
+export async function requireBackofficeSession(minimumRole: UserRole = UserRole.ASSISTANT) {
   const session = await getSessionFromCookies();
 
   if (!session || !hasDatabaseUrl()) {

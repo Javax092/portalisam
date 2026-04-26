@@ -1,3 +1,4 @@
+import { UserRole } from "@prisma/client";
 import { LayoutDashboard } from "lucide-react";
 
 import { LogoutButton } from "@/components/auth/logout-button";
@@ -7,9 +8,10 @@ import { Badge } from "@/components/ui/badge";
 type AdminHeaderProps = {
   currentPath: string;
   userName?: string | null;
+  userRole?: UserRole | null;
 };
 
-export function AdminHeader({ currentPath, userName }: AdminHeaderProps) {
+export function AdminHeader({ currentPath, userName, userRole }: AdminHeaderProps) {
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/60 sm:flex-row sm:items-center sm:justify-between">
@@ -29,7 +31,7 @@ export function AdminHeader({ currentPath, userName }: AdminHeaderProps) {
         </div>
         <LogoutButton />
       </div>
-      <AdminNav currentPath={currentPath} />
+      <AdminNav currentPath={currentPath} userRole={userRole ?? undefined} />
     </div>
   );
 }

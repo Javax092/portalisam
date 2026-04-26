@@ -5,7 +5,7 @@ import { canAccessBackoffice, hasMinimumRole } from "@/lib/auth/roles";
 import { getSessionFromCookies } from "@/lib/auth/server";
 import { hasDatabaseUrl, prisma } from "@/lib/db/prisma";
 
-export async function requireAdminApiSession(minimumRole: UserRole = UserRole.ADMIN) {
+export async function requireAdminApiSession(minimumRole: UserRole = UserRole.ASSISTANT) {
   const session = await getSessionFromCookies();
 
   if (!session || !hasDatabaseUrl()) {

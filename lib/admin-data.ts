@@ -73,7 +73,7 @@ const dashboardFallback = {
       neighborhood: "Promorar",
       address: "Avenida Principal, proximo ao ponto de onibus",
       managerComment: "Registro enviado para avaliacao inicial com apoio das liderancas locais.",
-      assignedTo: { id: "fallback-manager", name: "Equipe local", email: "gestao@promorar.local", role: "MANAGER" },
+      assignedTo: { id: "fallback-assistant", name: "Equipe local", email: "assistente@isam.org", role: "ASSISTANT" },
     },
     {
       id: "fallback-admin-report-3",
@@ -219,7 +219,7 @@ export async function getAssignableUsers() {
       where: {
         isActive: true,
         role: {
-          in: [UserRole.EDITOR, UserRole.MANAGER, UserRole.ADMIN],
+          in: [UserRole.ASSISTANT, UserRole.ADMIN],
         },
       },
       select: {

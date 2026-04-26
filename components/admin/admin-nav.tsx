@@ -1,5 +1,7 @@
+import { UserRole } from "@prisma/client";
 import Link from "next/link";
 
+import { canManageSensitiveSettings } from "@/lib/auth/roles";
 import { cn } from "@/lib/utils";
 
 const adminLinks = [
@@ -12,12 +14,21 @@ const adminLinks = [
 
 type AdminNavProps = {
   currentPath: string;
+  userRole?: UserRole;
 };
 
-export function AdminNav({ currentPath }: AdminNavProps) {
+export function AdminNav({ currentPath, userRole }: AdminNavProps) {
+  const visibleLinks = adminLinks.filter((link) => {
+    if (link.href !== "/admin/settings") {
+      return true;
+    }
+
+    return userRole ? canManageSensitiveSettings(userRole) : false;
+  });
+
   return (
     <nav className="flex gap-2 overflow-x-auto pb-1">
-      {adminLinks.map((link) => {
+      {visibleLinks.map((link) => {
         const active =
           link.href === "/admin"
             ? currentPath === link.href
