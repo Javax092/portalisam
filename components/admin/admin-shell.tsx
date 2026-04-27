@@ -3,9 +3,5 @@ type AdminShellProps = {
 };
 
 export function AdminShell({ children }: AdminShellProps) {
-  return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/60 sm:p-6">
-      {children}
-    </div>
-  );
+  return <div className="rounded-[2rem] border border-slate-200 bg-white text-slate-950 p-4 shadow-soft shadow-slate-200/70 sm:p-6">{children}</div>;
 }

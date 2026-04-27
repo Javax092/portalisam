@@ -15,8 +15,8 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${id}-error` : helperText ? `${id}-helper` : undefined}
         className={cn(
-          "premium-focus flex min-h-32 w-full resize-y rounded-xl border border-slate-300 bg-white px-3.5 py-3 text-sm text-slate-900 shadow-control outline-none transition duration-200 placeholder:text-slate-400 hover:border-slate-400 focus:border-primary disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500 disabled:opacity-60",
-          error && "border-rose-300 bg-rose-50/40 focus:border-rose-500",
+          "premium-focus flex min-h-36 w-full resize-y rounded-[1.5rem] border border-slate-300 bg-white px-4 py-3.5 text-sm text-slate-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.65),0_1px_2px_rgba(15,23,42,0.05)] outline-none transition duration-200 placeholder:text-slate-400 hover:border-slate-400 focus:border-sky-500 focus:bg-white disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-500",
+          error && "border-rose-300 bg-rose-50/40 focus:border-rose-400",
           className,
         )}
         id={id}

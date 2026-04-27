@@ -1,27 +1,27 @@
 import Link from "next/link";
 import {
-  ArrowRight,
-  CircleDashed,
   ClipboardList,
-  Eye,
-  ListFilter,
   MapPinned,
-  MoveRight,
   Radar,
+  SearchCheck,
   SlidersHorizontal,
+  Sparkles,
+  TriangleAlert,
 } from "lucide-react";
 
-import { EmptyState } from "@/components/ui/empty-state";
-import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { PaginationLinks } from "@/components/ui/pagination-links";
-import { SectionContainer } from "@/components/ui/section-container";
-import { SectionHeader } from "@/components/ui/section-header";
-import { StatCard } from "@/components/ui/stat-card";
 import { ReportCard } from "@/components/public/report-card";
 import { ReportsFilters } from "@/components/public/reports-filters";
 import { ReportsMapSection } from "@/components/public/reports-map-section";
+import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { FilterBar } from "@/components/ui/filter-bar";
+import { MetricCard } from "@/components/ui/metric-card";
+import { PageContainer } from "@/components/ui/page-container";
+import { PaginationLinks } from "@/components/ui/pagination-links";
+import { SectionContainer } from "@/components/ui/section-container";
+import { SectionHeader } from "@/components/ui/section-header";
 import { getPublicReports } from "@/lib/public-data";
 import { normalizePage } from "@/lib/reports";
 import type { PublicReportMapItem } from "@/lib/types/public";
@@ -69,170 +69,200 @@ export async function ReportsOverview({ searchParams }: ReportsOverviewProps) {
   const urgentReports = reports.filter((report) => report.severity === "URGENT").length;
 
   return (
-    <main className="pb-24">
-      <section className="relative overflow-hidden bg-hero-grid pb-10 pt-8 sm:pb-14 sm:pt-12">
-        <div className="hero-orb hero-orb-one" />
-        <div className="hero-orb hero-orb-two" />
-        <SectionContainer className="relative space-y-8">
-          <div className="grid gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)]">
-            <Card className="surface-highlight overflow-hidden rounded-[2rem] border-slate-200">
-              <CardContent className="space-y-6 p-6 pt-6 sm:p-8 sm:pt-8">
+    <PageContainer className="pt-4 sm:pt-6">
+      <section className="safe-section overflow-hidden">
+        <SectionContainer className="space-y-6">
+          <div className="reveal-up safe-section safe-card overflow-hidden rounded-[2rem]">
+            <div className="relative z-10 grid gap-6 px-5 py-6 sm:px-8 sm:py-8 xl:grid-cols-[1.1fr_0.9fr]">
+              <div className="space-y-6">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="muted">Demandas da comunidade</Badge>
-                  <Badge className="border-slate-200 bg-white/80 text-slate-700">
-                    <Radar className="h-3.5 w-3.5 text-sky-700" />
-                    Feed publico em tempo real
+                  <Badge variant="muted">Demandas territoriais</Badge>
+                  <Badge>
+                    <Radar className="h-3.5 w-3.5" />
+                    Indicadores publicos
                   </Badge>
                 </div>
 
                 <div className="space-y-4">
-                  <h1 className="max-w-3xl text-balance text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl lg:text-[3.25rem]">
-                    Acompanhe as demandas com leitura rapida, status visivel e mapa em destaque.
+                  <h1 className="max-w-4xl text-balance text-3xl font-black tracking-tight text-slate-950 sm:text-5xl">
+                    Demandas registradas pela comunidade
                   </h1>
-                  <p className="max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
-                    Um painel publico mais claro para entender o que entrou, o que esta em analise,
-                    o que esta em andamento e o que ja foi resolvido.
+                  <p className="max-w-2xl text-base leading-8 text-slate-700 sm:text-lg">
+                    Acompanhamento publico de solicitacoes comunitarias com status, prioridade,
+                    categoria e historico de atualizacao.
                   </p>
                 </div>
 
-                <div className="flex flex-col gap-3 sm:flex-row">
+                <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                   <Link className={buttonVariants({ size: "lg" })} href="/report">
-                    Registrar nova demanda
-                    <MoveRight className="h-4 w-4" />
+                    Registrar demanda
                   </Link>
-                  <div className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700">
-                    <Eye className="h-4 w-4 text-sky-700" />
-                    {pagination.totalItems} registros encontrados com os filtros atuais
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="overflow-hidden rounded-[2rem] border-slate-200 bg-slate-950 text-white">
-              <CardContent className="space-y-5 p-6 pt-6 sm:p-7 sm:pt-7">
-                <div className="space-y-2">
-                  <Badge className="border-white/10 bg-white/10 text-white">Resumo executivo</Badge>
-                  <h2 className="text-2xl font-semibold tracking-tight">Leitura rapida desta pagina</h2>
-                  <p className="text-sm leading-6 text-slate-300">
-                    Numeros principais para orientar triagem, acompanhamento territorial e qualidade da localizacao.
-                  </p>
+                  <Link className={buttonVariants({ size: "lg", variant: "secondary" })} href="/portal">
+                    Voltar ao portal publico
+                  </Link>
                 </div>
 
-                <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
-                  <div className="rounded-[1.25rem] border border-white/10 bg-white/5 p-4">
-                    <p className="text-sm font-medium text-slate-300">Total</p>
-                    <p className="mt-2 text-3xl font-bold tracking-tight">{pagination.totalItems}</p>
-                  </div>
-                  <div className="rounded-[1.25rem] border border-emerald-400/20 bg-emerald-400/10 p-4">
-                    <p className="text-sm font-medium text-emerald-100">No mapa</p>
-                    <p className="mt-2 text-3xl font-bold tracking-tight text-white">{reportsWithCoordinates}</p>
-                  </div>
-                  <div className="rounded-[1.25rem] border border-amber-400/20 bg-amber-400/10 p-4">
-                    <p className="text-sm font-medium text-amber-100">Sem coordenadas</p>
-                    <p className="mt-2 text-3xl font-bold tracking-tight text-white">{reportsWithoutCoordinates.length}</p>
-                  </div>
+                <div className="grid gap-4 md:grid-cols-3">
+                  <MetricCard
+                    helper="registros encontrados com os filtros atuais"
+                    icon={ClipboardList}
+                    label="Demandas registradas"
+                    tone="sky"
+                    value={pagination.totalItems}
+                  />
+                  <MetricCard
+                    helper="registros posicionados no mapa publico"
+                    icon={MapPinned}
+                    label="No mapa"
+                    tone="emerald"
+                    value={reportsWithCoordinates}
+                  />
+                  <MetricCard
+                    helper="registros com prioridade maxima nesta pagina"
+                    icon={TriangleAlert}
+                    label="Urgentes"
+                    tone="amber"
+                    value={urgentReports}
+                  />
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-3">
-            <StatCard
-              helper="registros encontrados com os filtros atuais"
-              icon={ClipboardList}
-              label="Total de demandas"
-              tone="sky"
-              value={pagination.totalItems}
-            />
-            <StatCard
-              helper="itens posicionados no mapa publico"
-              icon={MapPinned}
-              label="No mapa"
-              tone="emerald"
-              value={reportsWithCoordinates}
-            />
-            <StatCard
-              helper="casos com prioridade maxima nesta pagina"
-              icon={CircleDashed}
-              label="Urgentes"
-              tone="amber"
-              value={urgentReports}
-            />
-          </div>
-
-          <Card className="surface-highlight">
-            <CardContent className="space-y-4 p-5 sm:p-6">
-              <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-                <SlidersHorizontal className="h-4 w-4 text-sky-700" />
-                Filtros por status, prioridade visual e categoria
               </div>
-              <ReportsFilters
-                category={category}
-                neighborhood={neighborhood}
-                priority={priority}
-                query={query}
-                status={status}
-              />
-            </CardContent>
-          </Card>
+
+              <div className="grid gap-4">
+                <Card className="safe-section overflow-hidden safe-dark-card">
+                  <CardContent className="p-6">
+                    <div
+                      aria-hidden="true"
+                      className="safe-bg bg-[radial-gradient(circle_at_top_right,_rgba(34,211,238,0.1),_transparent_24%),radial-gradient(circle_at_bottom_left,_rgba(16,185,129,0.06),_transparent_20%)]"
+                    />
+                    <div className="relative z-10 space-y-5">
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-sky-200">
+                            Resumo operacional
+                          </p>
+                          <h2 className="mt-2 text-2xl font-bold tracking-tight">Leitura institucional rapida</h2>
+                        </div>
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-700 bg-slate-900 text-sky-200">
+                          <Sparkles className="h-5 w-5" />
+                        </div>
+                      </div>
+
+                      <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
+                        <div className="rounded-[1.5rem] border border-white/10 bg-slate-900 p-4">
+                          <p className="text-sm font-medium text-slate-300">Total</p>
+                          <p className="mt-2 text-3xl font-black tracking-tight text-white">{pagination.totalItems}</p>
+                        </div>
+                        <div className="rounded-[1.5rem] border border-white/10 bg-slate-900 p-4">
+                          <p className="text-sm font-medium text-slate-300">No mapa</p>
+                          <p className="mt-2 text-3xl font-black tracking-tight text-white">{reportsWithCoordinates}</p>
+                        </div>
+                        <div className="rounded-[1.5rem] border border-white/10 bg-slate-900 p-4">
+                          <p className="text-sm font-medium text-slate-300">Sem coordenadas</p>
+                          <p className="mt-2 text-3xl font-black tracking-tight text-white">
+                            {reportsWithoutCoordinates.length}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <FilterBar>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                      <SlidersHorizontal className="h-4 w-4 text-sky-700" />
+                      Filtros por status, prioridade, categoria e territorio
+                    </div>
+                    <ReportsFilters
+                      category={category}
+                      neighborhood={neighborhood}
+                      priority={priority}
+                      query={query}
+                      status={status}
+                    />
+                  </div>
+                </FilterBar>
+              </div>
+            </div>
+          </div>
         </SectionContainer>
       </section>
 
-      <SectionContainer className="grid gap-8 py-10 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
-        <div className="space-y-5">
+      <SectionContainer className="ds-section grid gap-8 xl:grid-cols-[1.18fr_0.82fr]">
+        <section className="space-y-5 reveal-up stagger-1">
           <SectionHeader
-            eyebrow="Mapa das demandas"
-            title="Visualize os pontos registrados no territorio"
-            description="O mapa ganhou mais presenca, legenda clara e leitura territorial mais rapida."
+            eyebrow="Mapa territorial"
+            description="Visualizacao territorial dos registros comunitarios com georreferenciamento disponivel."
+            title="Mapa publico das demandas"
           />
           <ReportsMapSection reports={mapItems} />
-        </div>
+        </section>
 
-        <div className="space-y-4">
-          <Card className="bg-gradient-to-br from-white via-white to-sky-50">
-            <CardContent className="space-y-4 p-5 sm:p-6">
+        <div className="space-y-4 reveal-up stagger-2">
+          <Card className="border-slate-200 bg-white">
+            <CardContent className="space-y-4 p-6">
+              <Badge variant="muted">Leitura institucional</Badge>
               <div className="space-y-2">
-                <Badge variant="muted">Leitura rápida</Badge>
-                <h3 className="text-xl font-semibold tracking-tight text-foreground">Resumo desta pagina</h3>
+                <h3 className="text-2xl font-bold tracking-tight text-slate-950">
+                  Indicadores publicos para acompanhamento territorial
+                </h3>
+                <p className="text-sm leading-7 text-slate-700">
+                  Os filtros e o mapa apoiam a leitura de prioridades, distribuicao territorial e
+                  volume de registros publicados.
+                </p>
               </div>
               <div className="grid gap-3">
-                <div className="rounded-[1.25rem] bg-sky-50 p-4">
-                  <p className="text-sm font-semibold text-sky-900">Total</p>
-                  <p className="mt-1 text-2xl font-semibold tracking-tight text-sky-950">{pagination.totalItems}</p>
+                <div className="rounded-[1.25rem] border border-slate-200 bg-slate-50/80 p-4">
+                  <div className="mb-2 flex items-center gap-2 font-semibold text-slate-950">
+                    <SearchCheck className="h-4 w-4 text-sky-700" />
+                    Filtros institucionais
+                  </div>
+                  <p className="text-sm leading-6 text-slate-600">
+                    Ajuste categoria, status, prioridade e bairro para consolidar a leitura operacional.
+                  </p>
                 </div>
-                <div className="rounded-[1.25rem] bg-emerald-50 p-4">
-                  <p className="text-sm font-semibold text-emerald-900">No mapa</p>
-                  <p className="mt-1 text-2xl font-semibold tracking-tight text-emerald-950">{reportsWithCoordinates}</p>
+                <div className="rounded-[1.25rem] border border-slate-200 bg-slate-50/80 p-4">
+                  <div className="mb-2 flex items-center gap-2 font-semibold text-slate-950">
+                    <MapPinned className="h-4 w-4 text-emerald-700" />
+                    Cobertura territorial
+                  </div>
+                  <p className="text-sm leading-6 text-slate-600">
+                    {reportsWithCoordinates} itens desta pagina ja aparecem georreferenciados no mapa publico.
+                  </p>
                 </div>
-                <div className="rounded-[1.25rem] bg-amber-50 p-4">
-                  <p className="text-sm font-semibold text-amber-900">Sem coordenadas</p>
-                  <p className="mt-1 text-2xl font-semibold tracking-tight text-amber-950">{reportsWithoutCoordinates.length}</p>
+                <div className="rounded-[1.25rem] border border-slate-200 bg-slate-50/80 p-4">
+                  <div className="mb-2 flex items-center gap-2 font-semibold text-slate-950">
+                    <TriangleAlert className="h-4 w-4 text-amber-700" />
+                    Prioridade urgente
+                  </div>
+                  <p className="text-sm leading-6 text-slate-600">
+                    {urgentReports} registros nesta pagina estao marcados com prioridade urgente.
+                  </p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent className="space-y-4 p-5 sm:p-6">
-              <div className="flex items-center gap-2">
-                <ListFilter className="h-4 w-4 text-slate-500" />
-                <h3 className="text-xl font-semibold tracking-tight text-foreground">Itens sem coordenadas</h3>
-              </div>
+          <Card className="glass-panel border-slate-200/90">
+            <CardContent className="space-y-4 p-6">
+              <Badge variant="muted">Sem coordenadas</Badge>
+              <h3 className="text-2xl font-bold tracking-tight text-slate-950">
+                Registros que dependem de localizacao mais precisa
+              </h3>
               {reportsWithoutCoordinates.length > 0 ? (
-                reportsWithoutCoordinates.slice(0, 6).map((report) => (
-                  <div key={report.id} className="rounded-[1.25rem] border border-slate-200 bg-slate-50 p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <p className="font-semibold text-foreground">{report.title}</p>
-                      <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
+                <div className="grid gap-3">
+                  {reportsWithoutCoordinates.slice(0, 5).map((report) => (
+                    <div key={report.id} className="rounded-[1.25rem] border border-slate-200 bg-white p-4">
+                      <p className="font-semibold text-slate-950">{report.title}</p>
+                      <p className="mt-1 text-sm leading-6 text-slate-600">
+                        {report.address || report.neighborhood || "Localizacao ainda nao detalhada."}
+                      </p>
                     </div>
-                    <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                      {report.address || report.neighborhood || "Local ainda não detalhado."}
-                    </p>
-                  </div>
-                ))
+                  ))}
+                </div>
               ) : (
-                <div className="rounded-[1.25rem] bg-emerald-50 p-4 text-sm leading-6 text-emerald-900">
-                  Todos os itens desta página já contam com localização para leitura no mapa.
+                <div className="rounded-[1.25rem] border border-emerald-200 bg-emerald-50 p-4 text-sm leading-6 text-emerald-900">
+                  Todos os itens desta pagina contam com localizacao e ja aparecem no mapa publico.
                 </div>
               )}
             </CardContent>
@@ -241,13 +271,13 @@ export async function ReportsOverview({ searchParams }: ReportsOverviewProps) {
       </SectionContainer>
 
       <SectionContainer className="space-y-6">
-        <div className="flex flex-col gap-3 rounded-[1.5rem] bg-slate-950 px-5 py-4 text-white sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div className="flex flex-col gap-3 rounded-[1.75rem] border border-slate-200/80 bg-white/90 px-5 py-4 shadow-soft shadow-slate-200/70 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div className="flex items-start gap-3">
-            <ClipboardList className="mt-0.5 h-5 w-5 text-emerald-300" />
+            <ClipboardList className="mt-0.5 h-5 w-5 text-sky-700" />
             <div>
-              <p className="font-semibold">Feed publico de demandas</p>
-              <p className="text-sm leading-6 text-slate-200">
-                Pagina {pagination.page} de {pagination.totalPages} com {pagination.totalItems} registros encontrados.
+              <p className="font-semibold text-slate-950">Lista publica de demandas</p>
+              <p className="text-sm leading-6 text-slate-700">
+                Pagina {pagination.page} de {pagination.totalPages} com {pagination.totalItems} registros publicados.
               </p>
             </div>
           </div>
@@ -264,14 +294,16 @@ export async function ReportsOverview({ searchParams }: ReportsOverviewProps) {
           <EmptyState
             action={
               <Link className={buttonVariants({ variant: "secondary" })} href="/report">
-                Registrar uma nova demanda
+                Registrar demanda
               </Link>
             }
-            description="Nenhuma ocorrência foi encontrada com os filtros atuais. Ajuste a busca ou registre um novo relato."
-            title="Nenhuma demanda encontrada"
+            description="Os registros comunitarios serao listados conforme novas solicitacoes forem recebidas."
+            title="Nenhuma demanda registrada."
           />
         )}
+
+        <div className="pb-2" />
       </SectionContainer>
-    </main>
+    </PageContainer>
   );
 }

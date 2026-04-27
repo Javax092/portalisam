@@ -1,265 +1,357 @@
 import Link from "next/link";
-import { ArrowRight, BellRing, CalendarDays, ClipboardList, MapPin, Megaphone } from "lucide-react";
+import {
+  ArrowRight,
+  BellRing,
+  CalendarDays,
+  ClipboardList,
+  Landmark,
+  Radar,
+  ShieldCheck,
+} from "lucide-react";
 
 import { CommunityNoticeCard } from "@/components/public/community-notice-card";
 import { EventCard } from "@/components/public/event-card";
 import { ReportCard } from "@/components/public/report-card";
-import { LocalBusinessCard } from "@/components/public/supporter-section";
 import { WhatsAppCta } from "@/components/public/whatsapp-cta";
-import { EmptyState } from "@/components/ui/empty-state";
 import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { MetricCard } from "@/components/ui/metric-card";
+import { PageContainer } from "@/components/ui/page-container";
+import { SectionContainer } from "@/components/ui/section-container";
+import { SectionHeader } from "@/components/ui/section-header";
 import { SponsoredBanner } from "@/components/ui/sponsored-banner";
-import { StatCard } from "@/components/ui/stat-card";
 import { formatDate } from "@/lib/community";
 import { getPortalOverview } from "@/lib/public-data";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { siteConfig } from "@/lib/site";
 
 export async function PortalOverview() {
   const { notices, events, reportStats, recentReports } = await getPortalOverview();
-  const totalOpenReports = reportStats
+  const totalReports = reportStats.reduce((acc, item) => acc + item._count._all, 0);
+  const activeReports = reportStats
     .filter((item) => item.status !== "RESOLVED" && item.status !== "ARCHIVED")
     .reduce((acc, item) => acc + item._count._all, 0);
+  const resolvedReports = reportStats.find((item) => item.status === "RESOLVED")?._count._all ?? 0;
   const featuredNotice = notices.find((notice) => notice.isFeatured) || notices[0];
-  const recentNotices = featuredNotice ? notices.filter((notice) => notice.id !== featuredNotice.id) : notices;
-
-  const supporterBusinesses = [
-    {
-      name: "Mercadinho Esperança",
-      category: "Mercado de bairro",
-      description: "Compras do dia a dia com atendimento próximo e apoio a ações do território.",
-    },
-    {
-      name: "Farmácia Vida Local",
-      category: "Saúde",
-      description: "Orientação básica, campanhas de cuidado e presença útil para a comunidade.",
-    },
-    {
-      name: "Padaria Bom Encontro",
-      category: "Alimentação",
-      description: "Encomendas, café da manhã e parceria frequente em eventos locais.",
-    },
-  ] as const;
-
-  const portalPrimaryButtonClassName =
-    "rounded-2xl border-slate-950 bg-slate-950 px-5 py-3 font-semibold text-white hover:-translate-y-0.5 hover:border-slate-800 hover:bg-slate-800 hover:text-white";
-  const portalSecondaryButtonClassName =
-    "rounded-2xl border-slate-200 bg-white px-5 py-3 text-slate-900 hover:-translate-y-0.5 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950";
+  const secondaryNotices = featuredNotice ? notices.filter((notice) => notice.id !== featuredNotice.id) : notices;
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 text-slate-900">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <section className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm shadow-slate-200/70 sm:p-8">
-          <div className="space-y-8">
-            <div className="max-w-3xl space-y-3">
-              <Badge>Portal da comunidade</Badge>
-              <h1 className="text-slate-950 font-bold tracking-tight text-4xl sm:text-5xl">
-                Portal da comunidade
-              </h1>
-              <p className="max-w-3xl text-slate-600 leading-7">
-                Avisos, eventos, demandas e apoiadores locais em um só lugar.
-              </p>
-            </div>
+    <PageContainer className="pt-2 sm:pt-4">
+      <section className="safe-section overflow-hidden">
+        <SectionContainer>
+          <div className="reveal-up safe-section safe-card overflow-hidden rounded-[2rem]">
+            <div className="relative z-10 grid gap-6 px-5 py-6 sm:px-8 sm:py-8 xl:grid-cols-[1.08fr_0.92fr]">
+              <div className="space-y-6">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant="muted">Portal publico oficial</Badge>
+                  <Badge>
+                    <Radar className="h-3.5 w-3.5" />
+                    Comunicados, agenda e demandas
+                  </Badge>
+                </div>
 
-            <div className="grid gap-4 rounded-3xl border border-slate-200 bg-slate-50/80 p-4 sm:grid-cols-3 sm:p-5">
-              <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Leitura rápida</p>
-                <p className="text-sm leading-6 text-slate-700">Resumo claro do que está ativo agora no portal.</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Atualização pública</p>
-                <p className="text-sm leading-6 text-slate-700">Avisos, agenda e demandas organizados em blocos curtos.</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Apoio local</p>
-                <p className="text-sm leading-6 text-slate-700">Espaço próprio para apoiadores sem poluir a informação principal.</p>
-              </div>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-3">
-              <StatCard helper="comunicados visíveis agora" icon={BellRing} label="Avisos ativos" tone="sky" value={notices.length} />
-              <StatCard helper="encontros programados" icon={CalendarDays} label="Próximos eventos" tone="emerald" value={events.length} />
-              <StatCard helper="casos ainda acompanhados" icon={ClipboardList} label="Demandas acompanhadas" tone="amber" value={totalOpenReports} />
-            </div>
-
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Link className={cn(buttonVariants({ size: "default", variant: "secondary" }), portalPrimaryButtonClassName)} href="/report">
-                Reportar problema
-              </Link>
-              <Link className={cn(buttonVariants({ size: "default", variant: "secondary" }), portalSecondaryButtonClassName)} href="/reports">
-                Ver demandas
-              </Link>
-              <WhatsAppCta label="Quero anunciar" size="default" />
-            </div>
-          </div>
-        </section>
-
-        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">
-          <div className="space-y-8">
-            <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/70">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge className="border-slate-200 bg-slate-950 text-white">Aviso em destaque</Badge>
-                {featuredNotice?.category ? <Badge variant="muted">{featuredNotice.category}</Badge> : null}
-              </div>
-              <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(220px,0.9fr)]">
                 <div className="space-y-4">
-                  <h2 className="text-slate-950 font-bold tracking-tight text-3xl">
-                    {featuredNotice?.title || "Publique um aviso importante para abrir o portal com clareza"}
-                  </h2>
-                  <p className="text-slate-600 leading-7">
-                    {featuredNotice?.description || "Aqui fica o principal recado do dia para moradores, voluntários e lideranças locais."}
+                  <h1 className="max-w-4xl text-balance text-3xl font-black tracking-tight text-slate-950 sm:text-5xl">
+                    Comunicacao publica e acompanhamento institucional
+                  </h1>
+                  <p className="max-w-2xl text-base leading-8 text-slate-700 sm:text-lg">
+                    Comunicados, eventos, demandas e indicadores reunidos em um ambiente oficial para
+                    consulta da comunidade.
                   </p>
                 </div>
-                <div className="grid gap-4">
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">Publicado em</p>
-                    <p className="mt-2 text-base font-semibold text-slate-950">
-                      {featuredNotice ? formatDate(featuredNotice.publishedAt || featuredNotice.createdAt) : "Sem aviso publicado"}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">Leitura rápida</p>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">
-                      O principal recado do portal aparece primeiro, com contexto claro e contraste suficiente.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </section>
 
-            <section className="space-y-5">
-              <div className="space-y-2">
-                <h2 className="text-slate-950 font-bold tracking-tight text-3xl">Avisos recentes</h2>
-                <p className="text-slate-600 leading-7">Comunicados do território organizados para leitura simples, com menos ruído visual e melhor prioridade editorial.</p>
-              </div>
-              {recentNotices.length > 0 ? (
-                <div className="grid gap-4 md:grid-cols-2">
-                  {recentNotices.map((notice) => (
-                    <CommunityNoticeCard key={notice.id} notice={notice} />
-                  ))}
+                <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                  <Link className={buttonVariants({ size: "lg" })} href="/report">
+                    Registrar demanda
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                  <Link className={buttonVariants({ size: "lg", variant: "secondary" })} href="/reports">
+                    Acompanhar demandas
+                  </Link>
+                  <WhatsAppCta label="Canal institucional" size="lg" target="community" />
                 </div>
-              ) : (
-                <EmptyState
-                  description="Quando um novo aviso for publicado, ele aparecerá aqui em leitura objetiva."
-                  title="Nenhum aviso recente no momento"
-                />
-              )}
-            </section>
 
-            <section className="space-y-5">
-              <div className="space-y-2">
-                <h2 className="text-slate-950 font-bold tracking-tight text-3xl">Próximos eventos</h2>
-                <p className="text-slate-600 leading-7">Encontros, ações e programações com data em destaque para facilitar decisão rápida no celular ou no desktop.</p>
-              </div>
-              {events.length > 0 ? (
-                <div className="grid gap-4">
-                  {events.map((event) => (
-                    <EventCard key={event.id} event={event} />
-                  ))}
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                  <MetricCard helper="publicacoes oficiais ativas" icon={BellRing} label="Comunicados" tone="sky" value={notices.length} />
+                  <MetricCard helper="programacao publica cadastrada" icon={CalendarDays} label="Agenda institucional" tone="emerald" value={events.length} />
+                  <MetricCard helper="demandas em acompanhamento" icon={ClipboardList} label="Demandas ativas" tone="cyan" value={activeReports} />
+                  <MetricCard helper="demandas concluidas" icon={ShieldCheck} label="Demandas resolvidas" tone="amber" value={resolvedReports} />
                 </div>
-              ) : (
-                <EmptyState
-                  description="Assim que um evento for cadastrado, ele aparecerá aqui com data, horário e local."
-                  title="Nenhum evento agendado"
-                />
-              )}
-            </section>
+              </div>
 
-            <section className="space-y-5">
-              <div className="space-y-2">
-                <h2 className="text-slate-950 font-bold tracking-tight text-3xl">Demandas recentes</h2>
-                <p className="text-slate-600 leading-7">Acompanhamento público com contexto suficiente para entender o estágio, a prioridade e a atualização mais recente.</p>
+              <div className="grid gap-4">
+                <Card className="soft-float safe-section overflow-hidden safe-dark-card">
+                  <CardContent className="p-6">
+                    <div
+                      aria-hidden="true"
+                      className="safe-bg bg-[radial-gradient(circle_at_top_right,_rgba(34,211,238,0.1),_transparent_24%),radial-gradient(circle_at_bottom_left,_rgba(16,185,129,0.06),_transparent_20%)]"
+                    />
+                    <div className="relative z-10 space-y-5">
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-sky-200">
+                            Canal oficial
+                          </p>
+                          <h2 className="mt-2 text-2xl font-bold tracking-tight">Leitura publica do territorio</h2>
+                        </div>
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-700 bg-slate-900 text-sky-200">
+                          <Landmark className="h-5 w-5" />
+                        </div>
+                      </div>
+
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="rounded-[1.5rem] border border-white/10 bg-slate-900 p-4">
+                          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-300">
+                            Publicacao principal
+                          </p>
+                          <p className="mt-2 font-semibold text-white">
+                            {featuredNotice?.title || "Nenhum comunicado publicado."}
+                          </p>
+                          <p className="mt-2 text-sm leading-6 text-slate-300">
+                            {featuredNotice
+                              ? `Publicado em ${formatDate(featuredNotice.publishedAt || featuredNotice.createdAt)}`
+                              : "As publicacoes oficiais serao destacadas neste espaco conforme forem cadastradas."}
+                          </p>
+                        </div>
+                        <div className="rounded-[1.5rem] border border-white/10 bg-slate-900 p-4">
+                          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-300">
+                            Panorama rapido
+                          </p>
+                          <p className="mt-2 text-3xl font-black tracking-tight text-white">{totalReports}</p>
+                          <p className="mt-2 text-sm leading-6 text-slate-300">
+                            Registros comunitarios com status, prioridade e historico de atualizacao.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-slate-200 bg-white">
+                  <CardContent className="space-y-5 p-6">
+                    <div className="space-y-2">
+                      <Badge variant="muted">Governanca institucional</Badge>
+                      <h2 className="text-2xl font-bold tracking-tight text-slate-950">
+                        Governanca comunitaria e transparencia publica
+                      </h2>
+                      <p className="text-sm leading-7 text-slate-700">
+                        O ISAM Conectado organiza comunicados, registros comunitarios, agenda
+                        institucional e indicadores publicos em um ambiente oficial de consulta,
+                        fortalecendo a confianca entre comunidade, equipe e parceiros.
+                      </p>
+                    </div>
+
+                    <div className="grid gap-3 md:grid-cols-3">
+                      <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50/80 p-4">
+                        <p className="text-sm font-semibold text-slate-950">Comunicacao oficial</p>
+                        <p className="mt-2 text-sm leading-6 text-slate-600">
+                          Publicacoes institucionais centralizadas para consulta publica.
+                        </p>
+                      </div>
+                      <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50/80 p-4">
+                        <p className="text-sm font-semibold text-slate-950">Acompanhamento territorial</p>
+                        <p className="mt-2 text-sm leading-6 text-slate-600">
+                          Demandas registradas com status, prioridade e historico de atualizacao.
+                        </p>
+                      </div>
+                      <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50/80 p-4">
+                        <p className="text-sm font-semibold text-slate-950">Prestacao de contas</p>
+                        <p className="mt-2 text-sm leading-6 text-slate-600">
+                          Indicadores e registros organizados para ampliar transparencia e responsabilidade publica.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                      <Link className={buttonVariants({ size: "default" })} href="/report">
+                        Registrar demanda
+                      </Link>
+                      <Link className={buttonVariants({ size: "default", variant: "secondary" })} href="/reports">
+                        Acompanhar demandas
+                      </Link>
+                      <WhatsAppCta label="Canal institucional" size="default" target="community" />
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
-              {recentReports.length > 0 ? (
-                <div className="grid gap-4">
-                  {recentReports.map((report) => (
-                    <ReportCard key={report.id} report={report} />
-                  ))}
-                </div>
-              ) : (
-                <EmptyState
-                  description="As próximas demandas públicas aparecerão aqui com status e atualização recente."
-                  title="Ainda não há demandas recentes"
-                />
-              )}
-              <div>
-                <Link className={cn(buttonVariants({ size: "default", variant: "secondary" }), portalPrimaryButtonClassName)} href="/reports">
-                  Ver todas as demandas
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-            </section>
+            </div>
           </div>
+        </SectionContainer>
+      </section>
 
-          <aside className="space-y-6">
-            <SponsoredBanner
-              badgeLabel="Apoiador local"
-              ctaLabel="Quero anunciar"
-              description="Apresente sua marca para moradores e lideranças em um espaço claro, confiável e pronto para operação real."
-              title="Anuncie para a comunidade"
+      <SectionContainer className="ds-section grid gap-8 xl:grid-cols-[1.18fr_0.82fr]">
+        <div className="space-y-8">
+          <section className="space-y-5">
+            <SectionHeader
+              eyebrow="Comunicado em destaque"
+              description="A principal publicacao institucional permanece destacada com contexto, data e leitura imediata."
+              title="Comunicado oficial em destaque"
             />
 
-            <section className="space-y-4">
-              <div className="space-y-2">
-                <h2 className="text-slate-950 font-bold tracking-tight text-2xl">Negócios apoiadores</h2>
-                <p className="text-slate-600 leading-7">Uma vitrine curta e objetiva para apoiadores locais, com descrição enxuta e contato direto.</p>
-              </div>
-              <div className="grid gap-4">
-                {supporterBusinesses.map((business) => (
-                  <LocalBusinessCard key={business.name} {...business} />
-                ))}
-              </div>
-            </section>
-
-            <Card className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/70">
-              <CardContent className="space-y-4 p-0">
-                <Badge className="border-slate-200 bg-slate-100 text-slate-700" variant="muted">
-                  Institucional
-                </Badge>
-                <div className="space-y-2">
-                  <h2 className="text-slate-950 font-bold tracking-tight text-2xl">Portal da sua organização</h2>
-                  <p className="text-slate-600 leading-7">
-                    Configure dados reais da ONG, igreja ou associação e mantenha a comunidade informada.
+            <Card className="interactive-border overflow-hidden">
+              <CardContent className="grid gap-6 p-6 lg:grid-cols-[1.2fr_0.8fr]">
+                <div className="space-y-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {featuredNotice?.category ? <Badge variant="muted">{featuredNotice.category}</Badge> : null}
+                    {featuredNotice?.isFeatured ? <Badge>Prioridade editorial</Badge> : null}
+                  </div>
+                  <h2 className="text-3xl font-bold tracking-tight text-slate-950">
+                    {featuredNotice?.title || "Nenhum comunicado oficial em destaque."}
+                  </h2>
+                  <p className="text-base leading-8 text-slate-700">
+                    {featuredNotice?.description ||
+                      "As publicacoes institucionais prioritarias serao exibidas neste espaco."}
                   </p>
                 </div>
-                <Link className={cn(buttonVariants({ size: "default", variant: "secondary" }), "w-full", portalPrimaryButtonClassName)} href="/login">
-                  Entrar no painel
-                </Link>
-              </CardContent>
-            </Card>
 
-            <Card className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/70">
-              <CardContent className="space-y-4 p-0">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-slate-700">
-                    <Megaphone className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h2 className="text-slate-950 font-bold tracking-tight text-xl">Ações rápidas</h2>
-                    <p className="text-sm text-slate-500">Atalhos públicos do portal.</p>
-                  </div>
-                </div>
                 <div className="grid gap-3">
-                  <Link className={cn(buttonVariants({ size: "default", variant: "secondary" }), "justify-start", portalSecondaryButtonClassName)} href="/report">
-                    Reportar problema
-                  </Link>
-                  <Link className={cn(buttonVariants({ size: "default", variant: "secondary" }), "justify-start", portalSecondaryButtonClassName)} href="/reports">
-                    Ver demandas
-                  </Link>
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-                    <div className="mb-2 flex items-center gap-2 font-semibold text-slate-950">
-                      <MapPin className="h-4 w-4 text-emerald-700" />
-                      Cobertura pública
-                    </div>
-                    Acompanhamento visível para moradores com foco em leitura rápida no celular e no desktop.
+                  <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50/80 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600">Publicado em</p>
+                    <p className="mt-2 text-lg font-semibold text-slate-950">
+                      {featuredNotice
+                        ? formatDate(featuredNotice.publishedAt || featuredNotice.createdAt)
+                        : "Sem data definida"}
+                    </p>
+                  </div>
+                  <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50/80 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600">
+                      Governanca editorial
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                      Comunicados oficiais podem receber destaque sem comprometer a leitura das demais secoes publicas.
+                    </p>
                   </div>
                 </div>
               </CardContent>
             </Card>
-          </aside>
+          </section>
+
+          <section className="space-y-5">
+            <SectionHeader
+              eyebrow="Comunicados oficiais"
+              description="Publicacoes institucionais com leitura objetiva para consulta publica."
+              title="Atualizacoes publicas recentes"
+            />
+
+            {secondaryNotices.length > 0 ? (
+              <div className="grid gap-4 md:grid-cols-2">
+                {secondaryNotices.map((notice) => (
+                  <CommunityNoticeCard key={notice.id} notice={notice} />
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                description="As publicacoes oficiais serao listadas conforme novos comunicados forem cadastrados."
+                title="Nenhum comunicado publicado."
+              />
+            )}
+          </section>
+
+          <section className="space-y-5">
+            <SectionHeader
+              eyebrow="Agenda institucional"
+              description="Programacao publica de acoes comunitarias, mobilizacoes territoriais e encontros institucionais."
+              title="Programacao publica"
+            />
+
+            {events.length > 0 ? (
+              <div className="grid gap-4">
+                {events.map((event) => (
+                  <EventCard key={event.id} event={event} />
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                description="A agenda institucional sera exibida conforme novos eventos forem cadastrados."
+                title="Nenhum evento cadastrado."
+              />
+            )}
+          </section>
+
+          <section className="space-y-5">
+            <SectionHeader
+              eyebrow="Demandas territoriais"
+              description="Registros comunitarios publicados com status, prioridade e contexto territorial."
+              title="Demandas em acompanhamento"
+              action={
+                <Link className={buttonVariants({ variant: "secondary" })} href="/reports">
+                  Ver todas as demandas
+                </Link>
+              }
+            />
+
+            {recentReports.length > 0 ? (
+              <div className="grid gap-4 xl:grid-cols-2">
+                {recentReports.map((report) => (
+                  <ReportCard key={report.id} report={report} />
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                description="Os registros comunitarios serao listados conforme novas solicitacoes forem recebidas."
+                title="Nenhuma demanda registrada."
+              />
+            )}
+          </section>
         </div>
-      </div>
-    </main>
+
+        <aside className="space-y-6">
+          <Card className="overflow-hidden border border-slate-200 bg-white shadow-lg">
+            <CardContent className="relative p-6">
+              <div className="relative z-10 space-y-5">
+                <div className="space-y-2">
+                  <Badge variant="muted">Consulta publica</Badge>
+                  <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+                    Comunicacao oficial, registros comunitarios e acompanhamento territorial em um unico ambiente publico.
+                  </h2>
+                </div>
+                <p className="text-sm leading-7 text-slate-700">
+                  As informacoes publicas sao organizadas para fortalecer consulta, acompanhamento e
+                  transparencia comunitaria.
+                </p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <Link className="inline-flex w-full items-center justify-center rounded-full bg-blue-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800" href="/report">
+                    Registrar demanda
+                  </Link>
+                  <Link className="inline-flex w-full items-center justify-center rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-50" href="/reports">
+                    Acompanhar demandas
+                  </Link>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <SponsoredBanner
+            badgeLabel="Apoiadores do territorio"
+            ctaLabel="Quero apoiar"
+            description="Espaco institucional para apoiadores, com leitura discreta e alinhada ao restante do portal oficial."
+            title="Articulacao com parceiros e apoiadores"
+          />
+
+          <Card className="glass-panel border-slate-200/90">
+            <CardContent className="space-y-4 p-6">
+              <Badge variant="muted">Canal oficial</Badge>
+              <h2 className="text-2xl font-bold tracking-tight text-slate-950">
+                Canal institucional para contato com a equipe
+              </h2>
+              <p className="text-sm leading-7 text-slate-700">
+                O portal concentra informacoes publicas, enquanto o WhatsApp institucional permanece
+                disponivel para orientacoes e encaminhamentos oficiais.
+              </p>
+              <div className="grid gap-3">
+                <WhatsAppCta className="w-full" label="Canal institucional" size="default" target="community" />
+                <Link className={buttonVariants({ size: "default", variant: "secondary" })} href="/reports">
+                  Ver mapa e lista de demandas
+                </Link>
+              </div>
+              <div className="rounded-[1.25rem] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
+                {siteConfig.organizationName} • {siteConfig.neighborhoodName}
+              </div>
+            </CardContent>
+          </Card>
+        </aside>
+      </SectionContainer>
+    </PageContainer>
   );
 }

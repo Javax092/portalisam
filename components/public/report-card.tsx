@@ -2,6 +2,8 @@ import { ArrowUpRight, Clock3, MapPin, MessageSquareText, ShieldAlert, Tag } fro
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { PriorityBadge } from "@/components/ui/priority-badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import {
   formatDate,
   getPriorityTone,
@@ -41,33 +43,12 @@ export function ReportCard({ report }: ReportCardProps) {
       ? `${report.managerComment.slice(0, 157).trimEnd()}...`
       : report.managerComment;
 
-  const statusClassName =
-    statusTone === "resolved"
-      ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-      : statusTone === "review"
-        ? "border-amber-200 bg-amber-50 text-amber-800"
-        : statusTone === "progress"
-          ? "border-sky-200 bg-sky-50 text-sky-800"
-        : "border-sky-200 bg-sky-50 text-sky-700";
-
-  const priorityClassName =
-    priorityTone === "urgent"
-      ? "border-rose-200 bg-rose-50 text-rose-800"
-      : priorityTone === "high"
-        ? "border-orange-200 bg-orange-50 text-orange-800"
-        : priorityTone === "medium"
-          ? "border-sky-200 bg-sky-50 text-sky-800"
-          : "border-slate-200 bg-slate-100 text-slate-700";
-
   return (
-    <Card className="premium-card-hover h-full rounded-[1.75rem] border border-slate-200 bg-white shadow-sm shadow-slate-200/70">
+    <Card className="premium-card-hover h-full overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white">
       <CardContent className="space-y-5 p-5 sm:p-6">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge className={priorityClassName}>
-            <ShieldAlert className="h-3.5 w-3.5" />
-            {reportPriorityLabels[report.severity]}
-          </Badge>
-          <Badge className={statusClassName}>{reportStatusLabels[report.status]}</Badge>
+          <PriorityBadge label={reportPriorityLabels[report.severity]} tone={priorityTone} />
+          <StatusBadge label={reportStatusLabels[report.status]} tone={statusTone} />
           <Badge variant="muted">
             <Tag className="h-3.5 w-3.5" />
             {reportCategoryLabels[report.category]}
@@ -83,7 +64,7 @@ export function ReportCard({ report }: ReportCardProps) {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+            <div className="rounded-[1.25rem] border border-slate-200 bg-slate-50/90 p-4">
               <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">
                 Localizacao
               </p>
@@ -93,9 +74,9 @@ export function ReportCard({ report }: ReportCardProps) {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+            <div className="rounded-[1.25rem] border border-slate-200 bg-slate-50/90 p-4">
               <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">
-                Tempo de acompanhamento
+                Historico de acompanhamento
               </p>
               <div className="space-y-2 text-sm text-slate-700">
                 <div>Registrado em {formatDate(report.createdAt)}</div>
@@ -109,23 +90,23 @@ export function ReportCard({ report }: ReportCardProps) {
         </div>
 
         {compactComment ? (
-          <div className="rounded-[1.25rem] border border-emerald-200/80 bg-emerald-50/70 p-4 text-sm leading-6 text-emerald-950">
+          <div className="rounded-[1.25rem] border border-emerald-200/80 bg-emerald-50/75 p-4 text-sm leading-6 text-emerald-950">
             <div className="mb-2 flex items-center gap-2 font-medium text-emerald-950">
               <MessageSquareText className="h-4 w-4 text-emerald-600" />
-              Atualizacao da equipe
+              Atualizacao institucional
             </div>
             <p className="text-emerald-900/90">{compactComment}</p>
           </div>
         ) : (
           <div className="rounded-[1.25rem] border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-700">
-            Registro publicado e visivel no feed. Novas atualizacoes serao exibidas aqui assim que houver andamento.
+            Registro publicado para acompanhamento publico. Atualizacoes operacionais serao exibidas neste historico conforme a evolucao da demanda.
           </div>
         )}
 
         <div className="flex items-center justify-between border-t border-slate-200 pt-1 text-sm text-slate-500">
-          <span>Demanda publica da comunidade</span>
+          <span>Registro comunitario</span>
           <span className="inline-flex items-center gap-1.5 font-medium text-slate-700">
-            Acompanhamento ativo
+            Acompanhamento institucional
             <ArrowUpRight className="h-4 w-4" />
           </span>
         </div>

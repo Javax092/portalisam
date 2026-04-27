@@ -7,9 +7,9 @@ export default async function AdminEventsPage() {
 
   return (
     <AdminPageShell
-      eyebrow="Eventos"
-      title="Agenda de encontros e mobilizacoes"
-      description="Cadastre encontros, mutiroes e acoes locais com uma experiencia simples e organizada."
+      eyebrow="Agenda institucional"
+      title="Programacao publica e mobilizacao territorial"
+      description="Gestao de eventos, acoes comunitarias e mobilizacoes territoriais em um fluxo administrativo organizado."
     >
       <EventManager initialEvents={events} />
     </AdminPageShell>

@@ -22,9 +22,9 @@ export default async function AdminReportsPage({ searchParams }: AdminReportsPag
 
   return (
     <AdminPageShell
-      eyebrow="Ocorrencias"
-      title="Gestao das demandas do bairro"
-      description="Filtre, acompanhe prioridades e entre no detalhe de cada ocorrencia para atualizar o andamento."
+      eyebrow="Demandas"
+      title="Gestao institucional de demandas"
+      description="Filtre, acompanhe prioridades e atualize o andamento de cada registro comunitario."
     >
       <ReportsTable
         assignableUsers={assignableUsers}

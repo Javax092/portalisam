@@ -7,7 +7,11 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "db:seed": "tsx prisma/seed.ts",
+    "auth:check": "NODE_ENV=development tsx scripts/auth-check.ts",
+    "auth:reset": "tsx scripts/reset-internal-passwords.ts",
+    "db:seed": "tsx prisma/seed.ts prod",
+    "seed:prod": "tsx prisma/seed.ts prod",
+    "seed:demo": "tsx prisma/seed.ts demo",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
@@ -47,6 +51,6 @@
     "typescript": "^5.6.3"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts prod"
   }
 }

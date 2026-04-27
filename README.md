@@ -27,10 +27,10 @@ cp .env.example .env
 3. Preencha pelo menos:
 
 - `DATABASE_URL`
-- `DIRECT_URL`
-- `AUTH_SECRET`
-- `NEXT_PUBLIC_APP_NAME`
-- `NEXT_PUBLIC_SITE_URL`
+- `JWT_SECRET`
+- `ADMIN_DEFAULT_PASSWORD`
+- `ASSISTANT_DEFAULT_PASSWORD`
+- `NEXT_PUBLIC_APP_URL`
 
 4. Gere o Prisma Client:
 
@@ -60,10 +60,10 @@ npm run dev
 
 ```env
 DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public"
-DIRECT_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public"
-AUTH_SECRET="troque-por-uma-chave-longa-e-segura"
-NEXT_PUBLIC_APP_NAME="ISAM Conectado"
-NEXT_PUBLIC_SITE_URL="https://seu-dominio.vercel.app"
+JWT_SECRET="troque-por-uma-chave-longa-e-segura-com-pelo-menos-32-caracteres"
+ADMIN_DEFAULT_PASSWORD="defina-uma-senha-segura-para-o-admin"
+ASSISTANT_DEFAULT_PASSWORD="defina-uma-senha-segura-para-o-assistente"
+NEXT_PUBLIC_APP_URL="https://seu-dominio.vercel.app"
 ```
 
 ## Scripts
@@ -72,6 +72,7 @@ NEXT_PUBLIC_SITE_URL="https://seu-dominio.vercel.app"
 - `npm run build`
 - `npm run start`
 - `npm run lint`
+- `npm run auth:check`
 - `npm run prisma:generate`
 - `npm run prisma:migrate`
 - `npm run prisma:deploy`
@@ -81,9 +82,9 @@ NEXT_PUBLIC_SITE_URL="https://seu-dominio.vercel.app"
 ## Credenciais iniciais do admin
 
 - Email: `admin@isam.org`
-- Senha inicial: `123456`
+- Senha inicial: vem de `ADMIN_DEFAULT_PASSWORD`
 
-Troque a senha padrão imediatamente após o primeiro login em produção. A senha `123456` não deve permanecer no ambiente produtivo final.
+Troque a senha padrão imediatamente após o primeiro login em produção. A senha definida em `ADMIN_DEFAULT_PASSWORD` não deve permanecer como credencial final do ambiente produtivo.
 
 ## Seed de produção
 
@@ -105,7 +106,7 @@ Os apoiadores demo atuais são conteúdo estático do frontend, então não há 
 
 ## Segurança de produção
 
-- Gere um `AUTH_SECRET` forte com:
+- Gere um `JWT_SECRET` forte com:
 
 ```bash
 openssl rand -base64 32
@@ -143,7 +144,6 @@ git push -u origin main
 
 - Use a URL do PostgreSQL da Railway em:
   - `DATABASE_URL`
-  - `DIRECT_URL`
 - Se a URL interna da Railway não funcionar na Vercel, use a URL pública do banco.
 
 4. Importar o repositório na Vercel
@@ -158,10 +158,10 @@ git push -u origin main
 5. Configurar variáveis na Vercel
 
 - `DATABASE_URL`
-- `DIRECT_URL`
-- `AUTH_SECRET`
-- `NEXT_PUBLIC_APP_NAME`
-- `NEXT_PUBLIC_SITE_URL`
+- `JWT_SECRET`
+- `ADMIN_DEFAULT_PASSWORD`
+- `ASSISTANT_DEFAULT_PASSWORD`
+- `NEXT_PUBLIC_APP_URL`
 
 6. Rodar migrations em produção
 
@@ -194,7 +194,6 @@ npx prisma db seed
 3. Copiar a `DATABASE_URL`.
 4. Usar essa URL na Vercel como:
    - `DATABASE_URL`
-   - `DIRECT_URL`
 
 Se a URL interna da Railway não funcionar na Vercel, use a URL pública do banco.
 
@@ -212,10 +211,10 @@ npm run build
 5. Variáveis obrigatórias:
 
 - `DATABASE_URL`
-- `DIRECT_URL`
-- `AUTH_SECRET`
-- `NEXT_PUBLIC_APP_NAME`
-- `NEXT_PUBLIC_SITE_URL`
+- `JWT_SECRET`
+- `ADMIN_DEFAULT_PASSWORD`
+- `ASSISTANT_DEFAULT_PASSWORD`
+- `NEXT_PUBLIC_APP_URL`
 
 Observações importantes para evitar `404` em produção:
 
@@ -244,3 +243,6 @@ npm run lint
 npx prisma generate
 npm run build
 ```
+
+- admin@isam.org ADMIN
+- assistente@isam.org ASSISTANT

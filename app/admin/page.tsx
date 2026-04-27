@@ -7,9 +7,9 @@ export default async function AdminPage() {
 
   return (
     <AdminPageShell
-      eyebrow="Dashboard"
-      title="Visao geral da operacao comunitaria"
-      description="Acompanhe rapidamente o volume de avisos, eventos e ocorrencias para manter a gestao local em movimento."
+      eyebrow="Painel administrativo"
+      title="Painel administrativo institucional"
+      description="Gestao de comunicados, agenda, demandas e indicadores operacionais do ISAM Conectado."
     >
       <AdminDashboard data={data} />
     </AdminPageShell>

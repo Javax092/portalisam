@@ -3,99 +3,17 @@ import { Prisma, ReportStatus, UserRole } from "@prisma/client";
 import { adminReportsPageSize, buildAdminReportWhere, getPaginationMeta, normalizePage } from "@/lib/reports";
 import { hasDatabaseUrl, prisma } from "@/lib/db/prisma";
 
-const dashboardFallback = {
+const emptyDashboardData = {
   totals: {
-    notices: 4,
-    events: 4,
-    reports: 6,
-    openReports: 4,
-    resolvedReports: 1,
+    notices: 0,
+    events: 0,
+    reports: 0,
+    openReports: 0,
+    resolvedReports: 0,
   },
-  recentNotices: [
-    {
-      id: "fallback-admin-notice-1",
-      title: "Acao social neste sabado na quadra do bairro",
-      category: "Acao social",
-      isFeatured: true,
-      updatedAt: new Date("2026-04-20T12:00:00.000Z"),
-    },
-    {
-      id: "fallback-admin-notice-2",
-      title: "Reuniao aberta com liderancas comunitarias",
-      category: "Participacao comunitaria",
-      isFeatured: true,
-      updatedAt: new Date("2026-04-19T15:00:00.000Z"),
-    },
-    {
-      id: "fallback-admin-notice-3",
-      title: "Campanha de arrecadacao para familias em vulnerabilidade",
-      category: "Solidariedade",
-      isFeatured: false,
-      updatedAt: new Date("2026-04-18T10:00:00.000Z"),
-    },
-  ],
-  recentEvents: [
-    {
-      id: "fallback-admin-event-1",
-      title: "Culto comunitario de gratidao e acolhimento",
-      location: "Igreja Comunidade da Esperanca",
-      startsAt: new Date("2026-04-24T22:00:00.000Z"),
-    },
-    {
-      id: "fallback-admin-event-2",
-      title: "Distribuicao de cestas basicas para familias cadastradas",
-      location: "Centro Comunitario Promorar",
-      startsAt: new Date("2026-04-25T13:00:00.000Z"),
-    },
-    {
-      id: "fallback-admin-event-3",
-      title: "Mutirao de limpeza nas ruas principais",
-      location: "Concentracao na Praca Central",
-      startsAt: new Date("2026-04-26T12:30:00.000Z"),
-    },
-  ],
-  recentReports: [
-    {
-      id: "fallback-admin-report-1",
-      title: "Poste sem iluminacao perto da escola municipal",
-      status: "OPEN",
-      priority: "URGENT",
-      neighborhood: "Promorar",
-      address: "Rua da Escola, esquina com Rua das Flores",
-      managerComment: null,
-      assignedTo: null,
-    },
-    {
-      id: "fallback-admin-report-2",
-      title: "Buraco grande na rua principal proximo ao ponto de onibus",
-      status: "IN_REVIEW",
-      priority: "HIGH",
-      neighborhood: "Promorar",
-      address: "Avenida Principal, proximo ao ponto de onibus",
-      managerComment: "Registro enviado para avaliacao inicial com apoio das liderancas locais.",
-      assignedTo: { id: "fallback-assistant", name: "Equipe local", email: "assistente@isam.org", role: "ASSISTANT" },
-    },
-    {
-      id: "fallback-admin-report-3",
-      title: "Lixo acumulado em area de circulacao de pedestres",
-      status: "IN_PROGRESS",
-      priority: "MEDIUM",
-      neighborhood: "Nova Esperanca",
-      address: "Travessa Nova Vida, ao lado do mercadinho",
-      managerComment: "Moradores organizaram um ponto de apoio enquanto aguardam solucao definitiva.",
-      assignedTo: null,
-    },
-    {
-      id: "fallback-admin-report-4",
-      title: "Calcada danificada em frente ao posto de atendimento",
-      status: "RESOLVED",
-      priority: "MEDIUM",
-      neighborhood: "Promorar",
-      address: "Rua do Atendimento, 45",
-      managerComment: "A equipe comunitaria informou que o reparo emergencial ja foi realizado.",
-      assignedTo: null,
-    },
-  ],
+  recentNotices: [],
+  recentEvents: [],
+  recentReports: [],
 } as const;
 
 const reportListSelect = {
@@ -132,7 +50,7 @@ const reportListSelect = {
 
 export async function getAdminDashboardData() {
   if (!hasDatabaseUrl()) {
-    return dashboardFallback;
+    return emptyDashboardData;
   }
 
   try {
@@ -178,12 +96,12 @@ export async function getAdminDashboardData() {
         openReports,
         resolvedReports,
       },
-      recentNotices: recentNotices.length > 0 ? recentNotices : dashboardFallback.recentNotices,
-      recentEvents: recentEvents.length > 0 ? recentEvents : dashboardFallback.recentEvents,
-      recentReports: recentReports.length > 0 ? recentReports : dashboardFallback.recentReports,
+      recentNotices,
+      recentEvents,
+      recentReports,
     };
   } catch {
-    return dashboardFallback;
+    return emptyDashboardData;
   }
 }
 

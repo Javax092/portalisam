@@ -33,6 +33,8 @@ export async function POST(request: Request) {
       category: parsed.data.category,
       isFeatured: parsed.data.isFeatured,
       isActive: parsed.data.isActive,
+      organizationId: session.organizationId ?? null,
+      communityId: session.communityId ?? null,
       publishedAt: parsed.data.publishedAt ?? null,
     },
   });

@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormField } from "@/components/ui/form-field";
+import { PriorityBadge } from "@/components/ui/priority-badge";
 import { Select } from "@/components/ui/select";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Textarea } from "@/components/ui/textarea";
@@ -171,32 +172,36 @@ export function ReportDetailManager({ report, assignableUsers }: ReportDetailMan
 
   return (
     <div className="space-y-6">
-      <Card className="overflow-hidden border-slate-200 bg-white text-slate-900">
-        <CardContent className="grid gap-6 p-6 lg:grid-cols-[1fr_auto] lg:items-start sm:p-8">
-          <div className="space-y-4">
-            <div className="flex flex-wrap gap-2">
-              <Badge variant="muted">
+      <Card className="safe-section overflow-hidden safe-dark-card">
+        <CardContent className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-start">
+          <div
+            aria-hidden="true"
+            className="safe-bg bg-[radial-gradient(circle_at_top_right,_rgba(34,211,238,0.1),_transparent_24%),radial-gradient(circle_at_bottom_left,_rgba(16,185,129,0.06),_transparent_20%)]"
+          />
+          <div className="relative z-10 space-y-4">
+            <div className="relative flex flex-wrap gap-2">
+              <Badge className="border-white/10 bg-slate-900 text-white" variant="muted">
                 {reportCategoryLabels[report.category]}
               </Badge>
               <StatusBadge label={reportStatusLabels[report.status]} tone={getReportStatusTone(report.status)} />
-              <StatusBadge label={reportPriorityLabels[report.priority]} tone={getPriorityTone(report.priority)} />
+              <PriorityBadge label={reportPriorityLabels[report.priority]} tone={getPriorityTone(report.priority)} />
             </div>
-            <div className="space-y-3">
-              <h2 className="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">{report.title}</h2>
-              <p className="max-w-3xl text-sm leading-7 text-slate-600 sm:text-base">{report.description}</p>
+            <div className="relative space-y-3">
+              <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">{report.title}</h2>
+              <p className="max-w-3xl text-sm leading-7 text-slate-200 sm:text-base">{report.description}</p>
             </div>
           </div>
-          <div className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700 sm:min-w-[300px]">
+          <div className="relative z-10 grid gap-3 rounded-[1.5rem] border border-white/10 bg-slate-900 p-4 text-sm text-slate-200 sm:min-w-[300px]">
             <div className="flex items-center gap-2">
-              <UserRound className="h-4 w-4 text-slate-500" />
+              <UserRound className="h-4 w-4 text-sky-200" />
               <span>{report.assignedTo ? report.assignedTo.name || report.assignedTo.email : "Sem responsavel"}</span>
             </div>
             <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-slate-500" />
+              <MapPin className="h-4 w-4 text-sky-200" />
               <span>{report.address || report.neighborhood || "Local nao informado"}</span>
             </div>
             <div className="flex items-center gap-2">
-              <CalendarClock className="h-4 w-4 text-slate-500" />
+              <CalendarClock className="h-4 w-4 text-sky-200" />
               <span>Ultima atividade: {formatDate(report.lastActivityAt)}</span>
             </div>
           </div>
@@ -205,7 +210,7 @@ export function ReportDetailManager({ report, assignableUsers }: ReportDetailMan
 
       <div className="grid gap-6 xl:grid-cols-[0.92fr_1.08fr]">
         <div className="space-y-6">
-          <Card>
+          <Card className="border-slate-200 bg-white">
             <CardHeader>
               <CardTitle>Resumo operacional</CardTitle>
               <CardDescription>Dados essenciais para decidir o proximo passo.</CardDescription>
@@ -232,10 +237,10 @@ export function ReportDetailManager({ report, assignableUsers }: ReportDetailMan
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="glass-panel border-slate-200/90">
             <CardHeader>
-              <CardTitle>Contato do morador</CardTitle>
-              <CardDescription>Informacoes opcionais enviadas no formulario publico.</CardDescription>
+              <CardTitle>Contato do registro</CardTitle>
+              <CardDescription>Informacoes opcionais disponibilizadas para retorno institucional.</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-3 text-sm">
               <InfoBlock label="Nome" value={report.submittedByName || "Nao informado"} />
@@ -247,11 +252,11 @@ export function ReportDetailManager({ report, assignableUsers }: ReportDetailMan
           </Card>
         </div>
 
-        <Card>
+        <Card className="glass-panel border-slate-200/90">
           <CardHeader>
             <CardTitle>Atualizar andamento</CardTitle>
             <CardDescription>
-              Separe o que sera publico para a comunidade do que e nota interna da equipe.
+              Diferencie o que sera publicado no portal do que deve permanecer como nota interna.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -289,22 +294,22 @@ export function ReportDetailManager({ report, assignableUsers }: ReportDetailMan
               <div className="grid gap-5 lg:grid-cols-2">
                 <FormField
                   error={errors.managerComment?.message}
-                  hint="Aparece no acompanhamento publico. Use linguagem simples e objetiva."
-                  label="Comentario publico"
+                  hint="Este texto pode ser exibido no acompanhamento publico da demanda."
+                  label="Atualizacao publica"
                 >
                   <Textarea
                     {...register("managerComment")}
-                    placeholder="Ex.: A demanda foi encaminhada para avaliacao da equipe local."
+                    placeholder="Informe o andamento institucional visivel para consulta publica."
                   />
                 </FormField>
                 <FormField
                   error={errors.internalComment?.message}
-                  hint="Fica na timeline interna para contexto operacional."
+                  hint="Registro reservado para contexto operacional da equipe."
                   label="Nota interna"
                 >
                   <Textarea
                     {...register("internalComment")}
-                    placeholder="Ex.: Aguardando retorno do parceiro responsavel pela execucao."
+                    placeholder="Registre observacoes internas, articulacoes e encaminhamentos administrativos."
                   />
                 </FormField>
               </div>
@@ -319,7 +324,7 @@ export function ReportDetailManager({ report, assignableUsers }: ReportDetailMan
                 ) : (
                   <>
                     <Save className="h-4 w-4" />
-                    Salvar atualizacao
+                    Atualizar status
                   </>
                 )}
               </Button>
@@ -329,15 +334,15 @@ export function ReportDetailManager({ report, assignableUsers }: ReportDetailMan
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-        <Card>
+        <Card className="glass-panel border-slate-200/90">
           <CardHeader>
-            <CardTitle>Timeline operacional</CardTitle>
-            <CardDescription>Historico de mudancas e encaminhamentos da demanda.</CardDescription>
+            <CardTitle>Historico de atualizacao</CardTitle>
+            <CardDescription>Registro cronologico de mudancas e encaminhamentos da demanda.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {report.activities.length > 0 ? (
               report.activities.map((activity) => (
-                <div key={activity.id} className="relative rounded-lg border border-border/70 bg-slate-50 p-4 text-sm text-slate-700">
+                <div key={activity.id} className="relative rounded-[1.25rem] border border-slate-200 bg-white p-4 text-sm text-slate-700">
                   <p className="font-semibold text-foreground">{getReportActivityLabel(activity.type)}</p>
                   <p className="mt-1 leading-6">{activity.message || "Sem mensagem adicional."}</p>
                   {activity.fromStatus && activity.toStatus ? (
@@ -352,19 +357,19 @@ export function ReportDetailManager({ report, assignableUsers }: ReportDetailMan
                 </div>
               ))
             ) : (
-              <p className="text-sm text-muted-foreground">Nenhuma atividade registrada ainda.</p>
+              <p className="text-sm text-muted-foreground">Nenhuma atividade registrada.</p>
             )}
           </CardContent>
         </Card>
 
         <div className="grid gap-6">
-          <Card>
+          <Card className="glass-panel border-slate-200/90">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <MessageSquareText className="h-4 w-4 text-emerald-700" />
-                <CardTitle>Comentarios publicos</CardTitle>
+                <CardTitle>Atualizacoes publicas</CardTitle>
               </div>
-              <CardDescription>Informacoes que ajudam a comunidade a acompanhar.</CardDescription>
+              <CardDescription>Informacoes disponiveis para acompanhamento publico da demanda.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               {publicComments.length > 0 ? (
@@ -372,18 +377,18 @@ export function ReportDetailManager({ report, assignableUsers }: ReportDetailMan
                   <CommentBlock key={comment.id} comment={comment} />
                 ))
               ) : (
-                <p className="text-sm text-muted-foreground">Nenhum comentario publico registrado.</p>
+                <p className="text-sm text-muted-foreground">Nenhuma atualizacao publica registrada.</p>
               )}
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="glass-panel border-slate-200/90">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <LockKeyhole className="h-4 w-4 text-slate-500" />
                 <CardTitle>Notas internas</CardTitle>
               </div>
-              <CardDescription>Contexto reservado para a equipe gestora.</CardDescription>
+              <CardDescription>Contexto reservado para a equipe responsavel.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               {internalComments.length > 0 ? (
@@ -396,18 +401,18 @@ export function ReportDetailManager({ report, assignableUsers }: ReportDetailMan
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="glass-panel border-slate-200/90">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <BellRing className="h-4 w-4 text-sky-700" />
                 <CardTitle>Fila de notificacoes</CardTitle>
               </div>
-              <CardDescription>Preparos de contato e status de envio.</CardDescription>
+              <CardDescription>Registros de preparo de contato e status de envio institucional.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               {report.notifications.length > 0 ? (
                 report.notifications.map((notification) => (
-                  <div key={notification.id} className="rounded-lg bg-slate-50 p-4 text-sm text-slate-700">
+                  <div key={notification.id} className="rounded-[1.25rem] border border-slate-200 bg-white p-4 text-sm text-slate-700">
                     <p className="font-semibold text-foreground">{notification.channel}</p>
                     <p>Status: {notification.status}</p>
                     <p>Destino: {notification.recipient}</p>
@@ -417,7 +422,7 @@ export function ReportDetailManager({ report, assignableUsers }: ReportDetailMan
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-muted-foreground">Nenhuma notificacao preparada.</p>
+                <p className="text-sm text-muted-foreground">Nenhuma notificacao registrada.</p>
               )}
             </CardContent>
           </Card>
@@ -429,7 +434,7 @@ export function ReportDetailManager({ report, assignableUsers }: ReportDetailMan
 
 function InfoBlock({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg bg-slate-50 p-4">
+    <div className="rounded-[1.25rem] border border-slate-200 bg-white p-4">
       <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">{label}</p>
       <p className="mt-1 font-medium text-foreground">{value}</p>
     </div>
@@ -452,7 +457,7 @@ type CommentBlockProps = {
 
 function CommentBlock({ comment, internal = false }: CommentBlockProps) {
   return (
-    <div className="rounded-lg bg-slate-50 p-4 text-sm text-slate-700">
+    <div className="rounded-[1.25rem] border border-slate-200 bg-white p-4 text-sm text-slate-700">
       <div className="mb-2 flex flex-wrap gap-2">
         {internal ? (
           <Badge variant="muted">Interno</Badge>

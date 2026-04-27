@@ -4,9 +4,11 @@ import { useTransition } from "react";
 import { LogOut, LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-import { Button } from "@/components/ui/button";
+import { Button, type ButtonProps } from "@/components/ui/button";
 
-export function LogoutButton() {
+type LogoutButtonProps = Pick<ButtonProps, "className" | "size" | "variant">;
+
+export function LogoutButton({ className, size = "sm", variant = "secondary" }: LogoutButtonProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -19,7 +21,7 @@ export function LogoutButton() {
   };
 
   return (
-    <Button onClick={handleLogout} size="sm" variant="secondary">
+    <Button className={className} onClick={handleLogout} size={size} variant={variant}>
       {isPending ? (
         <>
           <LoaderCircle className="h-4 w-4 animate-spin" />
@@ -28,7 +30,7 @@ export function LogoutButton() {
       ) : (
         <>
           <LogOut className="h-4 w-4" />
-          Sair
+          Sair do painel
         </>
       )}
     </Button>

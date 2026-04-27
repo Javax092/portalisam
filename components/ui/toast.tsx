@@ -12,7 +12,7 @@ export function Toast({ type, message, className }: ToastProps) {
   return (
     <div
       className={cn(
-        "flex items-start gap-3 rounded-lg border px-4 py-3 text-sm shadow-soft",
+        "flex items-start gap-3 rounded-[1.25rem] border px-4 py-3 text-sm shadow-soft",
         type === "success"
           ? "border-emerald-200 bg-emerald-50/95 text-emerald-900"
           : type === "warning"

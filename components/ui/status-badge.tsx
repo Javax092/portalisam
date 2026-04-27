@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle2, Clock3, Eye, Flame, Minus } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock3, Eye, Minus } from "lucide-react";
 
 import { Badge, type BadgeProps } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -26,7 +26,7 @@ const toneIcons: Record<StatusTone, React.ReactNode> = {
   low: <Minus className="h-3.5 w-3.5" />,
   medium: <Clock3 className="h-3.5 w-3.5" />,
   high: <AlertTriangle className="h-3.5 w-3.5" />,
-  urgent: <Flame className="h-3.5 w-3.5" />,
+  urgent: <AlertTriangle className="h-3.5 w-3.5" />,
 };
 
 type StatusBadgeProps = {

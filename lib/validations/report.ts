@@ -28,34 +28,49 @@ export const reportSchema = z.object({
   managerComment: z.string().trim().optional(),
 });
 
-export const publicCreateReportSchema = z.object({
-  title: z.string().trim().min(3, "Informe um titulo com pelo menos 3 caracteres."),
-  description: z.string().trim().min(10, "Descreva melhor o problema para ajudar no acompanhamento."),
-  category: z.enum(reportCategoryValues, {
-    required_error: "Selecione uma categoria.",
-    invalid_type_error: "Selecione uma categoria.",
-  }),
-  severity: z.enum(reportSeverityValues, {
-    required_error: "Selecione a gravidade da demanda.",
-    invalid_type_error: "Selecione a gravidade da demanda.",
-  }),
-  address: z.string().trim().max(180, "Use um endereco mais curto.").optional().or(z.literal("")),
-  neighborhood: z.string().trim().max(120, "Use um nome de bairro mais curto.").optional().or(z.literal("")),
-  submittedByName: z.string().trim().max(120, "Use um nome mais curto.").optional().or(z.literal("")),
-  submittedByEmail: z.string().trim().email("Informe um e-mail valido.").optional().or(z.literal("")),
-  submittedByPhone: z.string().trim().max(40, "Use um telefone mais curto.").optional().or(z.literal("")),
-  allowEmailUpdates: z.boolean().optional().default(false),
-  allowWhatsappUpdates: z.boolean().optional().default(false),
-  latitude: z
-    .union([z.number().min(-90).max(90), z.nan()])
-    .optional()
-    .transform((value) => (value === undefined || Number.isNaN(value) ? undefined : value)),
-  longitude: z
-    .union([z.number().min(-180).max(180), z.nan()])
-    .optional()
-    .transform((value) => (value === undefined || Number.isNaN(value) ? undefined : value)),
-  imageUrl: z.string().trim().url("Informe uma URL valida para a foto.").optional().or(z.literal("")),
-});
+export const publicCreateReportSchema = z
+  .object({
+    title: z.string().trim().min(3, "Informe um titulo com pelo menos 3 caracteres."),
+    description: z.string().trim().min(10, "Descreva melhor o problema para ajudar no acompanhamento."),
+    category: z.enum(reportCategoryValues, {
+      required_error: "Selecione uma categoria.",
+      invalid_type_error: "Selecione uma categoria.",
+    }),
+    severity: z.enum(reportSeverityValues, {
+      required_error: "Selecione a gravidade da demanda.",
+      invalid_type_error: "Selecione a gravidade da demanda.",
+    }),
+    address: z.string().trim().max(180, "Use um endereco mais curto.").optional().or(z.literal("")),
+    neighborhood: z.string().trim().max(120, "Use um nome de bairro mais curto.").optional().or(z.literal("")),
+    submittedByName: z.string().trim().max(120, "Use um nome mais curto.").optional().or(z.literal("")),
+    submittedByEmail: z.string().trim().email("Informe um e-mail valido.").optional().or(z.literal("")),
+    submittedByPhone: z.string().trim().max(40, "Use um telefone mais curto.").optional().or(z.literal("")),
+    allowEmailUpdates: z.boolean().optional().default(false),
+    allowWhatsappUpdates: z.boolean().optional().default(false),
+    latitude: z
+      .union([z.number().min(-90).max(90), z.nan()])
+      .optional()
+      .transform((value) => (value === undefined || Number.isNaN(value) ? undefined : value)),
+    longitude: z
+      .union([z.number().min(-180).max(180), z.nan()])
+      .optional()
+      .transform((value) => (value === undefined || Number.isNaN(value) ? undefined : value)),
+    imageUrl: z.string().trim().url("Informe uma URL valida para a foto.").optional().or(z.literal("")),
+  })
+  .superRefine((data, ctx) => {
+    if (!data.address && !data.neighborhood) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Informe o endereco ou pelo menos o bairro da ocorrencia.",
+        path: ["address"],
+      });
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Informe o endereco ou pelo menos o bairro da ocorrencia.",
+        path: ["neighborhood"],
+      });
+    }
+  });
 
 export type ReportInput = z.infer<typeof reportSchema>;
 export type PublicCreateReportInput = z.infer<typeof publicCreateReportSchema>;

@@ -6,17 +6,20 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   label?: string;
   helperText?: string;
   error?: string;
+  labelClassName?: string;
+  helperClassName?: string;
+  errorClassName?: string;
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, error, helperText, id, label, type = "text", ...props }, ref) => {
+  ({ className, error, errorClassName, helperClassName, helperText, id, label, labelClassName, type = "text", ...props }, ref) => {
     const input = (
       <input
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${id}-error` : helperText ? `${id}-helper` : undefined}
         className={cn(
-          "premium-focus flex h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-control outline-none transition duration-200 placeholder:text-slate-400 hover:border-slate-400 focus:border-primary disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500 disabled:opacity-60",
-          error && "border-rose-300 bg-rose-50/40 focus:border-rose-500",
+          "premium-focus flex h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.65),0_1px_2px_rgba(15,23,42,0.05)] outline-none transition duration-200 placeholder:text-slate-400 hover:border-slate-400 focus:border-sky-500 focus:bg-white disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-500",
+          error && "border-rose-300 bg-rose-50/40 focus:border-rose-400",
           className,
         )}
         id={id}
@@ -33,18 +36,18 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="space-y-2">
         {label ? (
-          <label className="text-sm font-semibold text-foreground" htmlFor={id}>
+          <label className={cn("text-sm font-semibold text-foreground", labelClassName)} htmlFor={id}>
             {label}
           </label>
         ) : null}
         {input}
         {helperText && !error ? (
-          <p className="text-sm leading-6 text-slate-500" id={id ? `${id}-helper` : undefined}>
+          <p className={cn("text-sm leading-6 text-slate-500", helperClassName)} id={id ? `${id}-helper` : undefined}>
             {helperText}
           </p>
         ) : null}
         {error ? (
-          <p className="text-sm font-medium leading-6 text-rose-600" id={id ? `${id}-error` : undefined}>
+          <p className={cn("text-sm font-medium leading-6 text-rose-600", errorClassName)} id={id ? `${id}-error` : undefined}>
             {error}
           </p>
         ) : null}

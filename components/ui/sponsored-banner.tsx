@@ -40,9 +40,9 @@ export function SponsoredBanner({
             <h3 className="text-xl font-bold tracking-tight text-white">{title}</h3>
             <p className="max-w-2xl text-sm leading-6 text-slate-300">{description}</p>
           </div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-slate-200">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-900 px-3 py-1.5 text-sm text-slate-100">
             <Megaphone className="h-4 w-4 text-emerald-300" />
-            anúncio com destaque e leitura limpa
+            anuncio com destaque e leitura limpa
           </div>
         </div>
         <Link

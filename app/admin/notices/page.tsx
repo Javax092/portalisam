@@ -7,9 +7,9 @@ export default async function AdminNoticesPage() {
 
   return (
     <AdminPageShell
-      eyebrow="Avisos"
-      title="Comunicados para a comunidade"
-      description="Crie, ajuste e destaque avisos para manter a comunicacao publica clara e confiavel."
+      eyebrow="Comunicados"
+      title="Publicacoes institucionais"
+      description="Gestao de comunicados oficiais com destaque editorial, status de publicacao e leitura publica confiavel."
     >
       <NoticeManager initialNotices={notices} />
     </AdminPageShell>

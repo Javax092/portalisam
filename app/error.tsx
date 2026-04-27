@@ -1,5 +1,6 @@
 "use client";
 
+import { PageContainer } from "@/components/ui/page-container";
 import { SectionContainer } from "@/components/ui/section-container";
 import { RetryButton, StatePanel } from "@/components/ui/state-panel";
 
@@ -9,7 +10,7 @@ export default function Error({
   reset: () => void;
 }) {
   return (
-    <main className="bg-hero-grid py-16 sm:py-24">
+    <PageContainer className="pt-10 sm:pt-14">
       <SectionContainer>
         <StatePanel
           action={<RetryButton onClick={reset} />}
@@ -18,6 +19,6 @@ export default function Error({
           tone="error"
         />
       </SectionContainer>
-    </main>
+    </PageContainer>
   );
 }

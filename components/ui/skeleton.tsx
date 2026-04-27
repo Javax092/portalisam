@@ -5,5 +5,5 @@ type SkeletonProps = {
 };
 
 export function Skeleton({ className }: SkeletonProps) {
-  return <div className={cn("skeleton-shimmer rounded-lg bg-slate-200/70", className)} />;
+  return <div className={cn("skeleton-shimmer rounded-2xl bg-slate-200/70", className)} />;
 }

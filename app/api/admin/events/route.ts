@@ -32,6 +32,8 @@ export async function POST(request: Request) {
       startsAt: parsed.data.startsAt,
       imageUrl: parsed.data.imageUrl || null,
       isActive: parsed.data.isActive,
+      organizationId: session.organizationId ?? null,
+      communityId: session.communityId ?? null,
     },
   });
 

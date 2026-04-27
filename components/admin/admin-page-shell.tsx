@@ -1,6 +1,6 @@
 import { AdminShell } from "@/components/admin/admin-shell";
+import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
-import { SectionContainer } from "@/components/ui/section-container";
 
 type AdminPageShellProps = {
   eyebrow?: string;
@@ -18,14 +18,14 @@ export function AdminPageShell({
   actions,
 }: AdminPageShellProps) {
   return (
-    <main className="pb-20 pt-8">
-      <SectionContainer className="space-y-8" size="admin">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <main className="space-y-6">
+      <Card className="overflow-hidden border-slate-200 bg-white">
+        <CardContent className="grid gap-4 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-end">
           <PageHeader eyebrow={eyebrow} title={title} description={description} />
-          {actions}
-        </div>
-        <AdminShell>{children}</AdminShell>
-      </SectionContainer>
+          {actions ? <div className="shrink-0">{actions}</div> : null}
+        </CardContent>
+      </Card>
+      <AdminShell>{children}</AdminShell>
     </main>
   );
 }

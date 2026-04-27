@@ -9,8 +9,10 @@
 [ ] GitHub criado
 [ ] Railway PostgreSQL criado
 [ ] DATABASE_URL configurada na Vercel
-[ ] DIRECT_URL configurada na Vercel
-[ ] AUTH_SECRET configurado
+[ ] JWT_SECRET configurado
+[ ] ADMIN_DEFAULT_PASSWORD configurado
+[ ] ASSISTANT_DEFAULT_PASSWORD configurado
+[ ] NEXT_PUBLIC_APP_URL configurado
 [ ] npx prisma migrate deploy executado
 [ ] npx prisma db seed executado uma vez
 [ ] / abre em produção

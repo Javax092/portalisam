@@ -19,15 +19,15 @@ export function EventCard({ event }: EventCardProps) {
   const month = new Intl.DateTimeFormat("pt-BR", { month: "short" }).format(parsed);
 
   return (
-    <Card className="premium-card-hover h-full rounded-3xl border border-slate-200 bg-white shadow-sm shadow-slate-200/70">
-      <CardContent className="grid gap-4 p-5 sm:grid-cols-[88px_1fr] sm:items-start">
+    <Card className="premium-card-hover h-full overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white">
+      <CardContent className="grid gap-4 p-5 sm:grid-cols-[96px_1fr] sm:items-start">
         <div className="rounded-[1.25rem] border border-emerald-200 bg-emerald-50 p-4 text-center shadow-sm shadow-emerald-100/60">
           <p className="text-xs font-semibold uppercase tracking-[0.08em] text-emerald-700">{month}</p>
           <p className="mt-1 text-3xl font-semibold tracking-tight text-emerald-950">{day}</p>
         </div>
         <div className="space-y-3">
           <div className="flex flex-wrap gap-2">
-            <Badge variant="success">Evento comunitário</Badge>
+            <Badge variant="success">Agenda institucional</Badge>
           </div>
           <div className="space-y-2">
             <h3 className="text-xl font-semibold tracking-tight text-slate-950">{event.title}</h3>

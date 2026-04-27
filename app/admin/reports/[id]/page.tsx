@@ -18,9 +18,9 @@ export default async function AdminReportDetailPage({ params }: AdminReportDetai
 
   return (
     <AdminPageShell
-      eyebrow="Detalhe da ocorrencia"
-      title="Acompanhar e atualizar demanda"
-      description="Veja todos os dados da ocorrencia e registre o andamento mais recente para a equipe e para a comunidade."
+      eyebrow="Detalhe da demanda"
+      title="Acompanhamento institucional da demanda"
+      description="Consulta completa do registro comunitario com atualizacao operacional, historico e comunicacoes associadas."
     >
       <ReportDetailManager
         assignableUsers={assignableUsers}

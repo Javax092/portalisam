@@ -43,21 +43,21 @@ export function FuturePagePlaceholder({
               </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-4 sm:grid-cols-3">
-              <div className="rounded-2xl bg-white/80 p-4">
+              <div className="rounded-2xl border border-slate-200 bg-white p-4">
                 <Clock3 className="mb-3 h-5 w-5 text-primary" />
                 <p className="font-semibold text-foreground">Fluxos futuros</p>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
                   Estrutura pronta para autenticação, permissões e formulários completos.
                 </p>
               </div>
-              <div className="rounded-2xl bg-white/80 p-4">
+              <div className="rounded-2xl border border-slate-200 bg-white p-4">
                 <MapPinned className="mb-3 h-5 w-5 text-emerald-600" />
                 <p className="font-semibold text-foreground">Integração territorial</p>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
                   Projeto preparado para receber mapa comunitário e visualização geográfica.
                 </p>
               </div>
-              <div className="rounded-2xl bg-white/80 p-4">
+              <div className="rounded-2xl border border-slate-200 bg-white p-4">
                 <Sparkles className="mb-3 h-5 w-5 text-sky-600" />
                 <p className="font-semibold text-foreground">Experiência consistente</p>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">

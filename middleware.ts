@@ -19,6 +19,10 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  if (pathname === authConfig.loginPath && session && canAccessBackoffice(session.role)) {
+    return NextResponse.redirect(new URL(authConfig.loginRedirect, request.url));
+  }
+
   if (isProtectedAdminRoute && (!session || !canAccessBackoffice(session.role))) {
     const loginUrl = new URL(authConfig.loginPath, request.url);
     loginUrl.searchParams.set("redirectTo", `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`);
@@ -30,5 +34,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*"],
+  matcher: ["/login", "/admin/:path*", "/api/admin/:path*"],
 };

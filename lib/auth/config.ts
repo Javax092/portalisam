@@ -1,5 +1,5 @@
 export const authConfig = {
-  sessionCookie: "promorar_session",
+  sessionCookie: "portal_session",
   sessionMaxAgeInSeconds: 60 * 60 * 24 * 7,
   publicRoutes: ["/", "/login"],
   protectedRoutes: ["/admin"],

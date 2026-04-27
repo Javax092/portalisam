@@ -20,6 +20,8 @@ export async function requireAdminApiSession(minimumRole: UserRole = UserRole.AS
         email: true,
         role: true,
         isActive: true,
+        organizationId: true,
+        communityId: true,
       },
     });
 
@@ -31,6 +33,8 @@ export async function requireAdminApiSession(minimumRole: UserRole = UserRole.AS
       userId: user.id,
       email: user.email,
       role: user.role,
+      organizationId: user.organizationId,
+      communityId: user.communityId,
     };
   } catch {
     return NextResponse.json({ message: "Acesso administrativo nao autorizado." }, { status: 401 });

@@ -9,23 +9,7 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { SponsoredBanner } from "@/components/ui/sponsored-banner";
 import { siteConfig } from "@/lib/site";
 
-const defaultBusinesses = [
-  {
-    name: "Mercadinho Esperança",
-    description: "Compras do dia a dia com atendimento próximo da comunidade.",
-    category: "Mercado de bairro",
-  },
-  {
-    name: "Farmácia Vida Local",
-    description: "Apoio a campanhas sociais, vacinação e orientações básicas.",
-    category: "Saúde",
-  },
-  {
-    name: "Padaria Bom Encontro",
-    description: "Café da manhã, encomendas e apoio a eventos da vizinhança.",
-    category: "Alimentação",
-  },
-] as const;
+const defaultBusinesses: readonly LocalBusinessCardProps[] = [];
 
 type LocalBusinessCardProps = {
   name: string;

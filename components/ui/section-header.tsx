@@ -30,7 +30,10 @@ export function SectionHeader({
     >
       <div className={cn("space-y-4", centered && "mx-auto")}>
         {eyebrow ? (
-          <Badge className={cn("w-fit", centered && "mx-auto")} variant="muted">
+          <Badge
+            className={cn("w-fit border-slate-200 bg-slate-50 text-slate-700", centered && "mx-auto")}
+            variant="muted"
+          >
             {eyebrow}
           </Badge>
         ) : null}
@@ -39,7 +42,7 @@ export function SectionHeader({
             {title}
           </h2>
           {description ? (
-            <p className={cn("max-w-2xl text-base leading-7 text-slate-600", centered && "mx-auto")}>
+            <p className={cn("max-w-2xl text-base leading-7 text-slate-700", centered && "mx-auto")}>
               {description}
             </p>
           ) : null}

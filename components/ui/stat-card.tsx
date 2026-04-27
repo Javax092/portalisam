@@ -1,7 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { MetricCard } from "@/components/ui/metric-card";
 
 type StatCardProps = {
   label: string;
@@ -27,18 +26,17 @@ export function StatCard({
   tone = "sky",
   className,
 }: StatCardProps) {
+  const metricTone =
+    tone === "emerald" ? "emerald" : tone === "amber" ? "amber" : tone === "slate" ? "slate" : "sky";
+
   return (
-    <Card className={cn("premium-card-hover h-full rounded-3xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/70", className)}>
-      <CardContent className="space-y-4 p-0">
-        <div className={cn("flex h-12 w-12 items-center justify-center rounded-2xl", tones[tone])}>
-          <Icon className="h-5 w-5" />
-        </div>
-        <div className="space-y-1">
-          <p className="text-sm font-semibold text-slate-700">{label}</p>
-          <p className="text-3xl font-bold tracking-tight text-slate-950">{value}</p>
-          {helper ? <p className="text-sm leading-6 text-slate-500">{helper}</p> : null}
-        </div>
-      </CardContent>
-    </Card>
+    <MetricCard
+      className={className}
+      helper={helper}
+      icon={Icon}
+      label={label}
+      tone={metricTone}
+      value={value}
+    />
   );
 }

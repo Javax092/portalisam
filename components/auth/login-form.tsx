@@ -7,6 +7,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, LoaderCircle, ShieldCheck } from "lucide-react";
 import { useForm } from "react-hook-form";
 
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Toast } from "@/components/ui/toast";
 import { siteConfig } from "@/lib/site";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth";
 
@@ -35,13 +40,41 @@ export function LoginForm() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(values),
-    });
+      body: JSON.stringify({
+        email: values.email.trim().toLowerCase(),
+        password: values.password,
+      }),
+    }).catch(() => null);
+
+    if (!response) {
+      setFormError("Servidor de autenticacao indisponivel.");
+      return;
+    }
 
     const data = (await response.json().catch(() => null)) as { message?: string } | null;
 
     if (!response.ok) {
-      setFormError(data?.message ?? "Nao foi possivel entrar agora.");
+      if (data?.message) {
+        setFormError(data.message);
+        return;
+      }
+
+      if (response.status === 401) {
+        setFormError("Nao foi possivel validar as credenciais informadas.");
+        return;
+      }
+
+      if (response.status === 403) {
+        setFormError("Usuario inativo.");
+        return;
+      }
+
+      if (response.status === 500) {
+        setFormError("Configuracao do servidor incompleta.");
+        return;
+      }
+
+      setFormError("Servidor de autenticacao indisponivel.");
       return;
     }
 
@@ -51,153 +84,77 @@ export function LoginForm() {
   });
 
   return (
-    <div
-      className="
-w-full
-max-w-md
-rounded-3xl
-border
-border-white/10
-bg-white/[0.06]
-p-8
-shadow-2xl
-backdrop-blur-xl
-"
-    >
-      <div className="mb-8 flex items-center gap-3">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/10 text-sky-300">
-          <ShieldCheck className="h-5 w-5" />
+    <Card className="interactive-border safe-card overflow-hidden text-slate-950">
+      <CardHeader className="space-y-5 border-b border-slate-200">
+        <div className="flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-sky-700">
+            <ShieldCheck className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-600">Portal institucional</p>
+            <p className="text-lg font-bold text-slate-950">{siteConfig.appName}</p>
+          </div>
         </div>
-        <div>
-          <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-400">Portal</p>
-          <p className="text-base font-semibold text-white">{siteConfig.appName}</p>
+
+        <div className="space-y-3">
+          <div className="flex flex-wrap gap-2">
+            <Badge className="border-slate-200 bg-slate-50 text-slate-700" variant="muted">
+              Acesso interno
+            </Badge>
+          </div>
+          <div>
+            <CardTitle className="text-slate-950">Acesso administrativo</CardTitle>
+            <CardDescription className="mt-2 text-slate-700">
+              Utilize suas credenciais para acessar o ambiente administrativo institucional.
+            </CardDescription>
+          </div>
         </div>
-      </div>
+      </CardHeader>
 
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-white">Acesso restrito</h1>
-        <p className="mt-2 text-sm leading-6 text-slate-300">
-          Entre com suas credenciais para acessar o painel administrativo.
-        </p>
-      </div>
-
-      <form className="space-y-5" onSubmit={onSubmit}>
-        <div>
-          <label className="text-sm font-medium text-slate-200" htmlFor="email">
-            E-mail
-          </label>
-          <input
+      <CardContent className="space-y-5 p-6">
+        <form className="space-y-5" onSubmit={onSubmit}>
+          <Input
             autoComplete="email"
-            className="
-mt-2
-w-full
-rounded-2xl
-border
-border-white/10
-bg-white/10
-px-4
-py-3
-text-white
-placeholder:text-slate-500
-outline-none
-transition
-focus:border-sky-400
-focus:ring-4
-focus:ring-sky-400/10
-"
+            className="border-slate-300 bg-white text-slate-950 placeholder:text-slate-400 hover:border-slate-400 focus:border-sky-500"
+            error={errors.email?.message}
             id="email"
-            placeholder="admin@promorar.com"
+            label="E-mail"
+            labelClassName="text-slate-700"
+            placeholder="admin@isam.org"
             {...register("email")}
           />
-          {errors.email ? (
-            <p className="mt-2 text-sm text-rose-300">{errors.email.message}</p>
-          ) : null}
-        </div>
 
-        <div>
-          <label className="text-sm font-medium text-slate-200" htmlFor="password">
-            Senha
-          </label>
-          <input
+          <Input
             autoComplete="current-password"
-            className="
-mt-2
-w-full
-rounded-2xl
-border
-border-white/10
-bg-white/10
-px-4
-py-3
-text-white
-placeholder:text-slate-500
-outline-none
-transition
-focus:border-sky-400
-focus:ring-4
-focus:ring-sky-400/10
-"
+            className="border-slate-300 bg-white text-slate-950 placeholder:text-slate-400 hover:border-slate-400 focus:border-sky-500"
+            error={errors.password?.message}
             id="password"
+            label="Senha"
+            labelClassName="text-slate-700"
             placeholder="Digite sua senha"
             type="password"
             {...register("password")}
           />
-          {errors.password ? (
-            <p className="mt-2 text-sm text-rose-300">{errors.password.message}</p>
-          ) : null}
-        </div>
 
-        {formError ? (
-          <div className="rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
-            {formError}
-          </div>
-        ) : null}
+          {formError ? <Toast message={formError} type="error" /> : null}
 
-        <button
-          className="
-w-full
-rounded-2xl
-bg-sky-500
-px-4
-py-3
-font-semibold
-text-white
-shadow-lg
-shadow-sky-500/20
-transition
-hover:bg-sky-400
-focus:outline-none
-focus:ring-4
-focus:ring-sky-400/30
-disabled:cursor-not-allowed
-disabled:opacity-70
-"
-          disabled={isSubmitting}
-          type="submit"
-        >
-          <span className="flex items-center justify-center gap-2">
-            {isSubmitting ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-            {isSubmitting ? "Entrando..." : "Entrar no painel"}
-          </span>
-        </button>
-      </form>
+          <Button className="w-full" disabled={isSubmitting} size="lg" type="submit">
+            {isSubmitting ? (
+              <>
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+                Entrando...
+              </>
+            ) : (
+              "Entrar no painel"
+            )}
+          </Button>
+        </form>
 
-      <div className="mt-6">
-        <Link
-          className="
-text-sm
-font-medium
-text-slate-300
-hover:text-white
-"
-          href="/portal"
-        >
-          <span className="inline-flex items-center gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Voltar para o portal
-          </span>
+        <Link className="premium-focus inline-flex items-center gap-2 text-sm font-semibold text-blue-700 transition hover:text-blue-800" href="/portal">
+          <ArrowLeft className="h-4 w-4" />
+          Voltar ao portal
         </Link>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
