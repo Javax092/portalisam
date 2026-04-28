@@ -4,7 +4,8 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -65,6 +66,74 @@ model Event {
 
   @@index([organizationId, startsAt])
   @@index([communityId, startsAt])
+}
+
+model Sponsor {
+  id            String          @id @default(cuid())
+  name          String
+  slug          String          @unique
+  description   String?
+  logoUrl       String?
+  websiteUrl    String?
+  whatsappUrl   String?
+  category      String
+  isActive      Boolean         @default(true)
+  advertisements Advertisement[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([isActive, createdAt])
+}
+
+model AdSlot {
+  id             String          @id @default(cuid())
+  title          String
+  slug           String          @unique
+  description    String?
+  placement      AdPlacement
+  size           String
+  isActive       Boolean         @default(true)
+  advertisements Advertisement[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([placement, isActive])
+}
+
+model Advertisement {
+  id          String    @id @default(cuid())
+  sponsorId   String
+  adSlotId    String
+  title       String
+  description String?
+  imageUrl    String
+  targetUrl   String?
+  startsAt    DateTime
+  endsAt      DateTime?
+  isActive    Boolean   @default(true)
+  priority    Int       @default(0)
+  sponsor     Sponsor   @relation(fields: [sponsorId], references: [id], onDelete: Restrict)
+  adSlot      AdSlot    @relation(fields: [adSlotId], references: [id], onDelete: Restrict)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([adSlotId, isActive, startsAt, endsAt, priority])
+  @@index([sponsorId, isActive, startsAt, endsAt])
+}
+
+model AdBanner {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  imageUrl    String
+  link        String?
+  isActive    Boolean  @default(true)
+  priority    Int      @default(0)
+  position    String   @default("portal_top")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([position, isActive, priority, createdAt])
 }
 
 model Report {
@@ -264,4 +333,13 @@ enum ReportPriority {
   MEDIUM
   HIGH
   URGENT
+}
+
+enum AdPlacement {
+  HOME_TOP
+  HOME_MIDDLE
+  PORTAL_SIDEBAR
+  PORTAL_BOTTOM
+  REPORTS_BOTTOM
+  FOOTER_SUPPORTERS
 }

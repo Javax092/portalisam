@@ -51,11 +51,15 @@ export function LoginForm() {
       return;
     }
 
-    const data = (await response.json().catch(() => null)) as { message?: string } | null;
+    const data = (await response.json().catch(() => null)) as
+      | { message?: string; error?: { message?: string } }
+      | null;
 
     if (!response.ok) {
-      if (data?.message) {
-        setFormError(data.message);
+      const message = data?.error?.message ?? data?.message;
+
+      if (message) {
+        setFormError(message);
         return;
       }
 
@@ -85,7 +89,7 @@ export function LoginForm() {
 
   return (
     <Card className="interactive-border safe-card overflow-hidden text-slate-950">
-      <CardHeader className="space-y-5 border-b border-slate-200">
+      <CardHeader className="space-y-4 border-b border-slate-200 p-5 sm:p-6">
         <div className="flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-sky-700">
             <ShieldCheck className="h-5 w-5" />
@@ -111,7 +115,7 @@ export function LoginForm() {
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-5 p-6">
+      <CardContent className="space-y-5 p-5 sm:p-6">
         <form className="space-y-5" onSubmit={onSubmit}>
           <Input
             autoComplete="email"

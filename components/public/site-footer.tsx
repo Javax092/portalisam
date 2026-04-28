@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Landmark, MessageCircle, ShieldCheck } from "lucide-react";
 
@@ -8,6 +11,38 @@ import { siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 export function SiteFooter() {
+  const [sponsors, setSponsors] = useState<
+    Array<{
+      id: string;
+      name: string;
+      category: string;
+      logoUrl: string | null;
+      websiteUrl: string | null;
+      whatsappUrl: string | null;
+    }>
+  >([]);
+
+  useEffect(() => {
+    let active = true;
+
+    fetch("/api/public/sponsors", { cache: "no-store" })
+      .then((response) => response.json())
+      .then((data) => {
+        if (active) {
+          setSponsors(Array.isArray(data?.sponsors) ? data.sponsors : []);
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setSponsors([]);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <footer className="mt-16 border-t border-slate-200 bg-white text-slate-900">
       <SectionContainer className="py-10 sm:py-12">
@@ -30,7 +65,7 @@ export function SiteFooter() {
                   <Link className={buttonVariants({ size: "default" })} href="/report">
                     Registrar demanda
                   </Link>
-                  <WhatsAppCta label="Canal institucional" size="default" target="community" />
+                  <WhatsAppCta className="hidden sm:inline-flex" label="Canal institucional" size="default" target="community" />
                 </div>
               </div>
 
@@ -74,6 +109,67 @@ export function SiteFooter() {
                 </Link>
               ))}
             </div>
+            <div className="mt-6 rounded-[1.25rem] border border-white/10 bg-slate-900 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Acesso interno</p>
+              <Link
+                className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-sky-200 transition hover:text-white"
+                href="/login"
+              >
+                Area administrativa
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+            {sponsors.length > 0 ? (
+              <div className="mt-6 rounded-[1.25rem] border border-white/10 bg-slate-900 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Apoiadores ativos</p>
+                <div className="mt-4 grid gap-3">
+                  {sponsors.slice(0, 6).map((sponsor) => {
+                    const href = sponsor.websiteUrl || sponsor.whatsappUrl;
+
+                    return href ? (
+                      <Link
+                        key={sponsor.id}
+                        className="flex items-center gap-3 rounded-[1rem] border border-white/10 bg-slate-950 px-3 py-2 transition hover:bg-slate-800"
+                        href={href}
+                        rel="noreferrer"
+                        target="_blank"
+                      >
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-slate-800">
+                          {sponsor.logoUrl ? (
+                            /* eslint-disable-next-line @next/next/no-img-element */
+                            <img alt={sponsor.name} className="h-full w-full object-cover" src={sponsor.logoUrl} />
+                          ) : (
+                            <span className="text-xs font-black text-slate-100">{sponsor.name.slice(0, 2).toUpperCase()}</span>
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold text-white">{sponsor.name}</p>
+                          <p className="truncate text-xs text-slate-300">{sponsor.category}</p>
+                        </div>
+                      </Link>
+                    ) : (
+                      <div
+                        key={sponsor.id}
+                        className="flex items-center gap-3 rounded-[1rem] border border-white/10 bg-slate-950 px-3 py-2"
+                      >
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-slate-800">
+                          {sponsor.logoUrl ? (
+                            /* eslint-disable-next-line @next/next/no-img-element */
+                            <img alt={sponsor.name} className="h-full w-full object-cover" src={sponsor.logoUrl} />
+                          ) : (
+                            <span className="text-xs font-black text-slate-100">{sponsor.name.slice(0, 2).toUpperCase()}</span>
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold text-white">{sponsor.name}</p>
+                          <p className="truncate text-xs text-slate-300">{sponsor.category}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
             <p className="mt-6 text-sm leading-6 text-slate-300">
               {siteConfig.organizationName} • {siteConfig.neighborhoodName}
             </p>

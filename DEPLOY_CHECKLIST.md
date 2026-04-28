@@ -9,9 +9,11 @@
 [ ] GitHub criado
 [ ] Railway PostgreSQL criado
 [ ] DATABASE_URL configurada na Vercel
-[ ] JWT_SECRET configurado
+[ ] JWT_SECRET ou AUTH_SECRET configurado
 [ ] ADMIN_DEFAULT_PASSWORD configurado
 [ ] ASSISTANT_DEFAULT_PASSWORD configurado
+[ ] ADMIN_DEFAULT_EMAIL configurado ou usar admin@isam.org
+[ ] ASSISTANT_DEFAULT_EMAIL configurado ou usar assistente@isam.org
 [ ] NEXT_PUBLIC_APP_URL configurado
 [ ] npx prisma migrate deploy executado
 [ ] npx prisma db seed executado uma vez

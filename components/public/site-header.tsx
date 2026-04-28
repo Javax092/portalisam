@@ -15,23 +15,23 @@ export function SiteHeader() {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 pt-4 text-slate-950">
+    <header className="sticky top-0 z-50 pt-2 text-slate-950 sm:pt-4">
       <SectionContainer>
-        <div className="reveal-up rounded-[1.75rem] border border-slate-200 bg-white/95 px-4 py-3 shadow-soft shadow-slate-200/70 sm:px-5">
-          <div className="flex min-h-16 items-center justify-between gap-4">
+        <div className="reveal-up rounded-[1.5rem] border border-slate-200 bg-white/95 px-3 py-2.5 shadow-soft shadow-slate-200/70 sm:rounded-[1.75rem] sm:px-5 sm:py-3">
+          <div className="flex min-h-14 items-center justify-between gap-3 sm:min-h-16 sm:gap-4">
             <Link className="flex min-w-0 items-center gap-3" href="/" onClick={() => setIsMobileNavOpen(false)}>
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-white shadow-sm shadow-slate-300/60">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-white shadow-sm shadow-slate-300/60 sm:h-12 sm:w-12">
                 <Waypoints className="h-5 w-5" />
               </div>
               <div className="min-w-0">
-                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-800">
+                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.16em] text-emerald-800 sm:px-2.5 sm:text-[10px]">
                   <ShieldCheck className="h-3 w-3" />
                   Portal oficial
                 </div>
-                <p className="mt-1 truncate text-base font-bold tracking-tight text-slate-950 sm:text-lg">
+                <p className="mt-1 truncate text-sm font-bold tracking-tight text-slate-950 sm:text-lg">
                   {siteConfig.portalName}
                 </p>
-                <p className="truncate text-xs text-slate-600 sm:text-sm">
+                <p className="truncate text-[11px] text-slate-600 sm:text-sm">
                   {siteConfig.organizationName} • {siteConfig.neighborhoodName}
                 </p>
               </div>
@@ -39,7 +39,7 @@ export function SiteHeader() {
 
             <PublicNav className="hidden items-center gap-2 xl:flex" items={siteConfig.nav} />
 
-            <div className="hidden items-center gap-2 md:flex">
+            <div className="hidden items-center gap-2 lg:flex">
               <Link className={buttonVariants({ size: "default", variant: "secondary" })} href="/report">
                 Registrar demanda
               </Link>
@@ -78,7 +78,7 @@ export function SiteHeader() {
                   Registrar demanda
                 </Link>
                 <WhatsAppCta
-                  className="w-full"
+                  className="hidden w-full sm:inline-flex"
                   label="Canal institucional"
                   onClick={() => setIsMobileNavOpen(false)}
                   size="default"

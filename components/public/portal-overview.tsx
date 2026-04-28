@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AdPlacement } from "@prisma/client";
 import {
   ArrowRight,
   BellRing,
@@ -10,8 +11,10 @@ import {
 } from "lucide-react";
 
 import { CommunityNoticeCard } from "@/components/public/community-notice-card";
+import { AdBannerSlot } from "@/components/public/ad-banner-slot";
 import { EventCard } from "@/components/public/event-card";
 import { ReportCard } from "@/components/public/report-card";
+import { SupportersSection } from "@/components/public/supporters-section";
 import { WhatsAppCta } from "@/components/public/whatsapp-cta";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -21,30 +24,41 @@ import { MetricCard } from "@/components/ui/metric-card";
 import { PageContainer } from "@/components/ui/page-container";
 import { SectionContainer } from "@/components/ui/section-container";
 import { SectionHeader } from "@/components/ui/section-header";
-import { SponsoredBanner } from "@/components/ui/sponsored-banner";
 import { formatDate } from "@/lib/community";
 import { getPortalOverview } from "@/lib/public-data";
+import { getActiveSponsors } from "@/lib/sponsors";
 import { siteConfig } from "@/lib/site";
 
 export async function PortalOverview() {
-  const { notices, events, reportStats, recentReports } = await getPortalOverview();
-  const totalReports = reportStats.reduce((acc, item) => acc + item._count._all, 0);
+  const [portalOverview, activeSponsors] = await Promise.all([
+    getPortalOverview(),
+    getActiveSponsors(),
+  ]);
+  const { notices, events, reportStats, recentReports } = portalOverview;
+  const totalReports = reportStats.reduce(
+    (acc, item) => acc + item._count._all,
+    0,
+  );
   const activeReports = reportStats
     .filter((item) => item.status !== "RESOLVED" && item.status !== "ARCHIVED")
     .reduce((acc, item) => acc + item._count._all, 0);
-  const resolvedReports = reportStats.find((item) => item.status === "RESOLVED")?._count._all ?? 0;
-  const featuredNotice = notices.find((notice) => notice.isFeatured) || notices[0];
-  const secondaryNotices = featuredNotice ? notices.filter((notice) => notice.id !== featuredNotice.id) : notices;
+  const resolvedReports =
+    reportStats.find((item) => item.status === "RESOLVED")?._count._all ?? 0;
+  const featuredNotice =
+    notices.find((notice) => notice.isFeatured) || notices[0];
+  const secondaryNotices = featuredNotice
+    ? notices.filter((notice) => notice.id !== featuredNotice.id)
+    : notices;
 
   return (
     <PageContainer className="pt-2 sm:pt-4">
       <section className="safe-section overflow-hidden">
         <SectionContainer>
           <div className="reveal-up safe-section safe-card overflow-hidden rounded-[2rem]">
-            <div className="relative z-10 grid gap-6 px-5 py-6 sm:px-8 sm:py-8 xl:grid-cols-[1.08fr_0.92fr]">
+            <div className="relative z-10 grid gap-6 px-4 py-6 sm:px-8 sm:py-8 xl:grid-cols-[1.08fr_0.92fr]">
               <div className="space-y-6">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="muted">Portal publico oficial</Badge>
+                  <Badge variant="muted">Painel de Atuação Comunitária</Badge>
                   <Badge>
                     <Radar className="h-3.5 w-3.5" />
                     Comunicados, agenda e demandas
@@ -52,31 +66,69 @@ export async function PortalOverview() {
                 </div>
 
                 <div className="space-y-4">
-                  <h1 className="max-w-4xl text-balance text-3xl font-black tracking-tight text-slate-950 sm:text-5xl">
-                    Comunicacao publica e acompanhamento institucional
+                  <h1 className="max-w-4xl text-balance text-[2rem] font-black tracking-tight text-slate-950 sm:text-5xl">
+                    Comunicação publica e acompanhamento institucional
                   </h1>
-                  <p className="max-w-2xl text-base leading-8 text-slate-700 sm:text-lg">
-                    Comunicados, eventos, demandas e indicadores reunidos em um ambiente oficial para
-                    consulta da comunidade.
+                  <p className="max-w-2xl text-base leading-7 text-slate-700 sm:text-lg sm:leading-8">
+                    Comunicados, eventos, demandas e indicadores reunidos em um
+                    ambiente oficial para consulta da comunidade.
                   </p>
                 </div>
 
                 <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                  <Link className={buttonVariants({ size: "lg" })} href="/report">
+                  <Link
+                    className={buttonVariants({ size: "lg" })}
+                    href="/report"
+                  >
                     Registrar demanda
                     <ArrowRight className="h-4 w-4" />
                   </Link>
-                  <Link className={buttonVariants({ size: "lg", variant: "secondary" })} href="/reports">
+                  <Link
+                    className={buttonVariants({
+                      size: "lg",
+                      variant: "secondary",
+                    })}
+                    href="/reports"
+                  >
                     Acompanhar demandas
                   </Link>
-                  <WhatsAppCta label="Canal institucional" size="lg" target="community" />
+                  <WhatsAppCta
+                    className="hidden sm:inline-flex"
+                    label="Canal institucional"
+                    size="lg"
+                    target="community"
+                  />
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                  <MetricCard helper="publicacoes oficiais ativas" icon={BellRing} label="Comunicados" tone="sky" value={notices.length} />
-                  <MetricCard helper="programacao publica cadastrada" icon={CalendarDays} label="Agenda institucional" tone="emerald" value={events.length} />
-                  <MetricCard helper="demandas em acompanhamento" icon={ClipboardList} label="Demandas ativas" tone="cyan" value={activeReports} />
-                  <MetricCard helper="demandas concluidas" icon={ShieldCheck} label="Demandas resolvidas" tone="amber" value={resolvedReports} />
+                  <MetricCard
+                    helper="publicações oficiais ativas"
+                    icon={BellRing}
+                    label="Comunicados"
+                    tone="sky"
+                    value={notices.length}
+                  />
+                  <MetricCard
+                    helper="programação publica cadastrada"
+                    icon={CalendarDays}
+                    label="Agenda institucional"
+                    tone="emerald"
+                    value={events.length}
+                  />
+                  <MetricCard
+                    helper="demandas em acompanhamento"
+                    icon={ClipboardList}
+                    label="Demandas ativas"
+                    tone="cyan"
+                    value={activeReports}
+                  />
+                  <MetricCard
+                    helper="demandas concluidas"
+                    icon={ShieldCheck}
+                    label="Demandas resolvidas"
+                    tone="amber"
+                    value={resolvedReports}
+                  />
                 </div>
               </div>
 
@@ -93,7 +145,9 @@ export async function PortalOverview() {
                           <p className="text-sm font-semibold uppercase tracking-[0.14em] text-sky-200">
                             Canal oficial
                           </p>
-                          <h2 className="mt-2 text-2xl font-bold tracking-tight">Leitura publica do territorio</h2>
+                          <h2 className="mt-2 text-2xl font-bold tracking-tight">
+                            Leitura publica do territorio
+                          </h2>
                         </div>
                         <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-700 bg-slate-900 text-sky-200">
                           <Landmark className="h-5 w-5" />
@@ -103,24 +157,28 @@ export async function PortalOverview() {
                       <div className="grid gap-3 sm:grid-cols-2">
                         <div className="rounded-[1.5rem] border border-white/10 bg-slate-900 p-4">
                           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-300">
-                            Publicacao principal
+                            Publicação principal
                           </p>
                           <p className="mt-2 font-semibold text-white">
-                            {featuredNotice?.title || "Nenhum comunicado publicado."}
+                            {featuredNotice?.title ||
+                              "Nenhum comunicado publicado."}
                           </p>
                           <p className="mt-2 text-sm leading-6 text-slate-300">
                             {featuredNotice
                               ? `Publicado em ${formatDate(featuredNotice.publishedAt || featuredNotice.createdAt)}`
-                              : "As publicacoes oficiais serao destacadas neste espaco conforme forem cadastradas."}
+                              : "As publicações oficiais serao destacadas neste espaço conforme forem cadastradas."}
                           </p>
                         </div>
                         <div className="rounded-[1.5rem] border border-white/10 bg-slate-900 p-4">
                           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-300">
                             Panorama rapido
                           </p>
-                          <p className="mt-2 text-3xl font-black tracking-tight text-white">{totalReports}</p>
+                          <p className="mt-2 text-3xl font-black tracking-tight text-white">
+                            {totalReports}
+                          </p>
                           <p className="mt-2 text-sm leading-6 text-slate-300">
-                            Registros comunitarios com status, prioridade e historico de atualizacao.
+                            Registros comunitarios com status, prioridade e
+                            historico de atualizacao.
                           </p>
                         </div>
                       </div>
@@ -131,46 +189,71 @@ export async function PortalOverview() {
                 <Card className="border-slate-200 bg-white">
                   <CardContent className="space-y-5 p-6">
                     <div className="space-y-2">
-                      <Badge variant="muted">Governanca institucional</Badge>
+                      <Badge variant="muted">Governança institucional</Badge>
                       <h2 className="text-2xl font-bold tracking-tight text-slate-950">
-                        Governanca comunitaria e transparencia publica
+                        Governança comunitaria e transparencia publica
                       </h2>
                       <p className="text-sm leading-7 text-slate-700">
-                        O ISAM Conectado organiza comunicados, registros comunitarios, agenda
-                        institucional e indicadores publicos em um ambiente oficial de consulta,
-                        fortalecendo a confianca entre comunidade, equipe e parceiros.
+                        O Painel de Atuação Comunitária organiza comunicados,
+                        registros comunitarios, agenda institucional e
+                        indicadores publicos em um ambiente oficial de consulta,
+                        fortalecendo a confianca entre comunidade, equipe e
+                        parceiros.
                       </p>
                     </div>
 
                     <div className="grid gap-3 md:grid-cols-3">
                       <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50/80 p-4">
-                        <p className="text-sm font-semibold text-slate-950">Comunicacao oficial</p>
+                        <p className="text-sm font-semibold text-slate-950">
+                          Comunicação oficial
+                        </p>
                         <p className="mt-2 text-sm leading-6 text-slate-600">
-                          Publicacoes institucionais centralizadas para consulta publica.
+                          Publicações institucionais centralizadas para consulta
+                          publica.
                         </p>
                       </div>
                       <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50/80 p-4">
-                        <p className="text-sm font-semibold text-slate-950">Acompanhamento territorial</p>
+                        <p className="text-sm font-semibold text-slate-950">
+                          Acompanhamento territorial
+                        </p>
                         <p className="mt-2 text-sm leading-6 text-slate-600">
-                          Demandas registradas com status, prioridade e historico de atualizacao.
+                          Demandas registradas com status, prioridade e
+                          historico de atualizacao.
                         </p>
                       </div>
                       <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50/80 p-4">
-                        <p className="text-sm font-semibold text-slate-950">Prestacao de contas</p>
+                        <p className="text-sm font-semibold text-slate-950">
+                          Prestação de contas
+                        </p>
                         <p className="mt-2 text-sm leading-6 text-slate-600">
-                          Indicadores e registros organizados para ampliar transparencia e responsabilidade publica.
+                          Indicadores e registros organizados para ampliar
+                          transparencia e responsabilidade publica.
                         </p>
                       </div>
                     </div>
 
                     <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                      <Link className={buttonVariants({ size: "default" })} href="/report">
+                      <Link
+                        className={buttonVariants({ size: "default" })}
+                        href="/report"
+                      >
                         Registrar demanda
                       </Link>
-                      <Link className={buttonVariants({ size: "default", variant: "secondary" })} href="/reports">
+                      <Link
+                        className={buttonVariants({
+                          size: "default",
+                          variant: "secondary",
+                        })}
+                        href="/reports"
+                      >
                         Acompanhar demandas
                       </Link>
-                      <WhatsAppCta label="Canal institucional" size="default" target="community" />
+                      <WhatsAppCta
+                        className="hidden sm:inline-flex"
+                        label="Canal institucional"
+                        size="default"
+                        target="community"
+                      />
                     </div>
                   </CardContent>
                 </Card>
@@ -179,6 +262,10 @@ export async function PortalOverview() {
           </div>
         </SectionContainer>
       </section>
+
+      <SectionContainer className="space-y-4">
+        <AdBannerSlot position="portal_top" />
+      </SectionContainer>
 
       <SectionContainer className="ds-section grid gap-8 xl:grid-cols-[1.18fr_0.82fr]">
         <div className="space-y-8">
@@ -193,11 +280,16 @@ export async function PortalOverview() {
               <CardContent className="grid gap-6 p-6 lg:grid-cols-[1.2fr_0.8fr]">
                 <div className="space-y-4">
                   <div className="flex flex-wrap items-center gap-2">
-                    {featuredNotice?.category ? <Badge variant="muted">{featuredNotice.category}</Badge> : null}
-                    {featuredNotice?.isFeatured ? <Badge>Prioridade editorial</Badge> : null}
+                    {featuredNotice?.category ? (
+                      <Badge variant="muted">{featuredNotice.category}</Badge>
+                    ) : null}
+                    {featuredNotice?.isFeatured ? (
+                      <Badge>Prioridade editorial</Badge>
+                    ) : null}
                   </div>
                   <h2 className="text-3xl font-bold tracking-tight text-slate-950">
-                    {featuredNotice?.title || "Nenhum comunicado oficial em destaque."}
+                    {featuredNotice?.title ||
+                      "Nenhum comunicado oficial em destaque."}
                   </h2>
                   <p className="text-base leading-8 text-slate-700">
                     {featuredNotice?.description ||
@@ -207,10 +299,15 @@ export async function PortalOverview() {
 
                 <div className="grid gap-3">
                   <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50/80 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600">Publicado em</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600">
+                      Publicado em
+                    </p>
                     <p className="mt-2 text-lg font-semibold text-slate-950">
                       {featuredNotice
-                        ? formatDate(featuredNotice.publishedAt || featuredNotice.createdAt)
+                        ? formatDate(
+                            featuredNotice.publishedAt ||
+                              featuredNotice.createdAt,
+                          )
                         : "Sem data definida"}
                     </p>
                   </div>
@@ -219,7 +316,8 @@ export async function PortalOverview() {
                       Governanca editorial
                     </p>
                     <p className="mt-2 text-sm leading-6 text-slate-600">
-                      Comunicados oficiais podem receber destaque sem comprometer a leitura das demais secoes publicas.
+                      Comunicados oficiais podem receber destaque sem
+                      comprometer a leitura das demais secoes publicas.
                     </p>
                   </div>
                 </div>
@@ -275,7 +373,10 @@ export async function PortalOverview() {
               description="Registros comunitarios publicados com status, prioridade e contexto territorial."
               title="Demandas em acompanhamento"
               action={
-                <Link className={buttonVariants({ variant: "secondary" })} href="/reports">
+                <Link
+                  className={buttonVariants({ variant: "secondary" })}
+                  href="/reports"
+                >
                   Ver todas as demandas
                 </Link>
               }
@@ -303,18 +404,25 @@ export async function PortalOverview() {
                 <div className="space-y-2">
                   <Badge variant="muted">Consulta publica</Badge>
                   <h2 className="text-2xl font-bold tracking-tight text-slate-900">
-                    Comunicacao oficial, registros comunitarios e acompanhamento territorial em um unico ambiente publico.
+                    Comunicacao oficial, registros comunitarios e acompanhamento
+                    territorial em um unico ambiente publico.
                   </h2>
                 </div>
                 <p className="text-sm leading-7 text-slate-700">
-                  As informacoes publicas sao organizadas para fortalecer consulta, acompanhamento e
-                  transparencia comunitaria.
+                  As informacoes publicas sao organizadas para fortalecer
+                  consulta, acompanhamento e transparencia comunitaria.
                 </p>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <Link className="inline-flex w-full items-center justify-center rounded-full bg-blue-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800" href="/report">
+                  <Link
+                    className="inline-flex w-full items-center justify-center rounded-full bg-blue-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800"
+                    href="/report"
+                  >
                     Registrar demanda
                   </Link>
-                  <Link className="inline-flex w-full items-center justify-center rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-50" href="/reports">
+                  <Link
+                    className="inline-flex w-full items-center justify-center rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-50"
+                    href="/reports"
+                  >
                     Acompanhar demandas
                   </Link>
                 </div>
@@ -322,11 +430,9 @@ export async function PortalOverview() {
             </CardContent>
           </Card>
 
-          <SponsoredBanner
-            badgeLabel="Apoiadores do territorio"
-            ctaLabel="Quero apoiar"
-            description="Espaco institucional para apoiadores, com leitura discreta e alinhada ao restante do portal oficial."
-            title="Articulacao com parceiros e apoiadores"
+          <AdBannerSlot
+            legacyPlacement={AdPlacement.PORTAL_SIDEBAR}
+            position="portal_sidebar"
           />
 
           <Card className="glass-panel border-slate-200/90">
@@ -336,12 +442,24 @@ export async function PortalOverview() {
                 Canal institucional para contato com a equipe
               </h2>
               <p className="text-sm leading-7 text-slate-700">
-                O portal concentra informacoes publicas, enquanto o WhatsApp institucional permanece
-                disponivel para orientacoes e encaminhamentos oficiais.
+                O portal concentra informacoes publicas, enquanto o WhatsApp
+                institucional permanece disponivel para orientacoes e
+                encaminhamentos oficiais.
               </p>
               <div className="grid gap-3">
-                <WhatsAppCta className="w-full" label="Canal institucional" size="default" target="community" />
-                <Link className={buttonVariants({ size: "default", variant: "secondary" })} href="/reports">
+                <WhatsAppCta
+                  className="w-full"
+                  label="Canal institucional"
+                  size="default"
+                  target="community"
+                />
+                <Link
+                  className={buttonVariants({
+                    size: "default",
+                    variant: "secondary",
+                  })}
+                  href="/reports"
+                >
                   Ver mapa e lista de demandas
                 </Link>
               </div>
@@ -351,6 +469,22 @@ export async function PortalOverview() {
             </CardContent>
           </Card>
         </aside>
+      </SectionContainer>
+
+      <SectionContainer className="space-y-4">
+        <AdBannerSlot
+          legacyPlacement={AdPlacement.PORTAL_BOTTOM}
+          position="portal_footer"
+        />
+      </SectionContainer>
+
+      <SectionContainer className="space-y-6">
+        <SupportersSection
+          badgeLabel="Apoio institucional"
+          description="Parceiros locais que fortalecem acoes comunitarias, comunicacao publica e iniciativas do territorio."
+          sponsors={activeSponsors}
+          title="Parceiros do territorio"
+        />
       </SectionContainer>
     </PageContainer>
   );

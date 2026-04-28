@@ -6,9 +6,12 @@ import {
   CheckCircle2,
   ClipboardList,
   Clock3,
+  LayoutTemplate,
+  Megaphone,
   MoveRight,
   Plus,
   Radar,
+  Users2,
 } from "lucide-react";
 
 import { LogoutButton } from "@/components/auth/logout-button";
@@ -68,6 +71,27 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
       value: data.totals.resolvedReports,
       helper: "casos finalizados com retorno registrado",
       icon: CheckCircle2,
+      tone: "bg-emerald-50 text-emerald-700",
+    },
+    {
+      label: "Patrocinadores ativos",
+      value: data.totals.activeSponsors,
+      helper: "apoiadores habilitados para campanhas",
+      icon: Users2,
+      tone: "bg-slate-50 text-slate-700",
+    },
+    {
+      label: "Campanhas ativas",
+      value: data.totals.activeCampaigns,
+      helper: "banners vigentes na area publica",
+      icon: Megaphone,
+      tone: "bg-cyan-50 text-cyan-700",
+    },
+    {
+      label: "Espacos disponiveis",
+      value: data.totals.availableAdSlots,
+      helper: "placements ativos sem campanha vigente",
+      icon: LayoutTemplate,
       tone: "bg-emerald-50 text-emerald-700",
     },
   ];
@@ -154,12 +178,22 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
               </span>
               <MoveRight className="h-4 w-4" />
             </Link>
+            <Link
+              className={buttonVariants({ className: "justify-between", size: "lg", variant: "secondary" })}
+              href="/admin/sponsors"
+            >
+              <span className="inline-flex items-center gap-2">
+                <Megaphone className="h-4 w-4" />
+                Gerenciar patrocinadores
+              </span>
+              <MoveRight className="h-4 w-4" />
+            </Link>
             <LogoutButton className="justify-between" size="lg" />
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-8">
         {statCards.map((item) => (
           <AdminMetricCard
             key={item.label}

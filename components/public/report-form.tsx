@@ -111,7 +111,7 @@ export function ReportForm() {
 
   return (
     <Card className="reveal-up interactive-border safe-card overflow-hidden">
-      <CardHeader className="space-y-5 border-b border-slate-200/80 bg-slate-950 text-white">
+      <CardHeader className="space-y-5 border-b border-slate-200/80 bg-slate-950 px-5 py-5 text-white sm:px-6 sm:py-6">
         <div className="flex flex-wrap gap-2">
           <div className="inline-flex items-center rounded-full border border-white/10 bg-slate-900 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white">
             Registro institucional
@@ -126,7 +126,7 @@ export function ReportForm() {
             O portal consolida os dados essenciais para analise, classificacao e acompanhamento territorial.
           </CardDescription>
         </div>
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="hidden gap-3 sm:grid-cols-3 lg:grid">
           {sectionCards.map((item) => {
             const Icon = item.icon;
 
@@ -144,8 +144,8 @@ export function ReportForm() {
       </CardHeader>
 
       <CardContent className="p-0">
-        <form className="space-y-6 p-5 sm:p-6" id="public-report-form" onSubmit={onSubmit}>
-          <section className="space-y-5 rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm">
+        <form className="space-y-5 p-4 sm:space-y-6 sm:p-6" id="public-report-form" onSubmit={onSubmit}>
+          <section className="space-y-5 rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
             <div className="space-y-1">
               <p className="text-sm font-semibold uppercase tracking-[0.08em] text-sky-700">
                 Identificacao da demanda
@@ -204,7 +204,7 @@ export function ReportForm() {
             </div>
           </section>
 
-          <section className="space-y-5 rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
+          <section className="space-y-5 rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4 sm:p-5">
             <div className="space-y-1">
               <p className="text-sm font-semibold uppercase tracking-[0.08em] text-emerald-700">
                 Referencia territorial
@@ -264,7 +264,7 @@ export function ReportForm() {
             </div>
           </section>
 
-          <section className="space-y-5 rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm">
+          <section className="space-y-5 rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
             <div className="space-y-1">
               <p className="text-sm font-semibold uppercase tracking-[0.08em] text-slate-700">
                 Contato institucional
@@ -321,7 +321,7 @@ export function ReportForm() {
             </div>
           </section>
 
-          <section className="space-y-4 rounded-[1.5rem] border border-slate-200 bg-sky-50/70 p-5">
+          <section className="space-y-4 rounded-[1.5rem] border border-slate-200 bg-sky-50/70 p-4 sm:p-5">
             <div className="flex items-start gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-sky-700 shadow-sm">
                 <Camera className="h-5 w-5" />
@@ -345,17 +345,17 @@ export function ReportForm() {
 
           {submitState ? <Toast message={submitState.message} type={submitState.type} /> : null}
 
-          <section className="mobile-safe-pad sticky bottom-3 z-10 overflow-hidden rounded-[1.5rem] border border-slate-200 bg-slate-950 text-white shadow-glow">
-            <div className="grid gap-4 p-5 sm:grid-cols-[1fr_auto] sm:items-center sm:p-6">
+          <section className="mobile-safe-pad sticky bottom-[5.5rem] z-10 overflow-hidden rounded-[1.5rem] border border-slate-200 bg-slate-950 text-white shadow-glow sm:bottom-3">
+            <div className="grid gap-4 p-4 sm:grid-cols-[1fr_auto] sm:items-center sm:p-6">
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.12em] text-emerald-200">
                   <ShieldCheck className="h-4 w-4" />
                   Pronto para envio
                 </div>
-                <p className="text-lg font-bold tracking-tight">
+                <p className="text-base font-bold tracking-tight sm:text-lg">
                   O registro fortalece o acompanhamento institucional no territorio.
                 </p>
-                <p className="text-sm leading-7 text-slate-200">
+                <p className="text-sm leading-6 text-slate-200 sm:leading-7">
                   A demanda podera receber classificacao, atualizacoes operacionais e historico
                   publico no portal.
                 </p>

@@ -1,4 +1,5 @@
 import {
+  AdPlacement,
   NotificationChannel,
   NotificationStatus,
   PrismaClient,
@@ -16,6 +17,9 @@ import { getReportSlaWindow } from "../lib/reports";
 const prisma = new PrismaClient();
 
 type SeedMode = "prod" | "demo";
+
+const DEFAULT_ADMIN_EMAIL = "admin@isam.org";
+const DEFAULT_ASSISTANT_EMAIL = "assistente@isam.org";
 
 type ReportSeed = {
   title: string;
@@ -54,6 +58,51 @@ type EventSeed = {
   startsAt: Date;
 };
 
+const defaultAdSlots = [
+  {
+    title: "Home top",
+    slug: "home-top",
+    description: "Banner institucional discreto logo apos a abertura principal da home.",
+    placement: AdPlacement.HOME_TOP,
+    size: "1200x320",
+  },
+  {
+    title: "Home middle",
+    slug: "home-middle",
+    description: "Espaco de apoio institucional no miolo da home publica.",
+    placement: AdPlacement.HOME_MIDDLE,
+    size: "1200x240",
+  },
+  {
+    title: "Portal sidebar",
+    slug: "portal-sidebar",
+    description: "Espaco lateral para apoiadores e banners institucionais no portal.",
+    placement: AdPlacement.PORTAL_SIDEBAR,
+    size: "420x320",
+  },
+  {
+    title: "Portal bottom",
+    slug: "portal-bottom",
+    description: "Espaco de rodape para parceiros do territorio na pagina do portal.",
+    placement: AdPlacement.PORTAL_BOTTOM,
+    size: "1200x220",
+  },
+  {
+    title: "Reports bottom",
+    slug: "reports-bottom",
+    description: "Apoio comunitario no rodape da pagina de demandas.",
+    placement: AdPlacement.REPORTS_BOTTOM,
+    size: "1200x220",
+  },
+  {
+    title: "Footer supporters",
+    slug: "footer-supporters",
+    description: "Lista de apoiadores ativos no rodape publico.",
+    placement: AdPlacement.FOOTER_SUPPORTERS,
+    size: "fluid",
+  },
+] as const;
+
 function getSeedMode(): SeedMode {
   const argvMode = process.argv[2]?.trim().toLowerCase();
   const envMode = process.env.SEED_MODE?.trim().toLowerCase();
@@ -70,6 +119,11 @@ function getRequiredEnv(name: string) {
   }
 
   return value;
+}
+
+function getOptionalEnv(name: string) {
+  const value = process.env[name]?.trim();
+  return value ? value : null;
 }
 
 async function ensureBaseStructure() {
@@ -108,8 +162,8 @@ async function ensureBaseStructure() {
 }
 
 async function ensureInternalUsers(organizationId: string, communityId: string) {
-  const adminEmail = getRequiredEnv("ADMIN_DEFAULT_EMAIL").toLowerCase();
-  const assistantEmail = getRequiredEnv("ASSISTANT_DEFAULT_EMAIL").toLowerCase();
+  const adminEmail = (getOptionalEnv("ADMIN_DEFAULT_EMAIL") ?? DEFAULT_ADMIN_EMAIL).toLowerCase();
+  const assistantEmail = (getOptionalEnv("ASSISTANT_DEFAULT_EMAIL") ?? DEFAULT_ASSISTANT_EMAIL).toLowerCase();
   const [adminPasswordHash, assistantPasswordHash] = await Promise.all([
     hashPassword(getRequiredEnv("ADMIN_DEFAULT_PASSWORD")),
     hashPassword(getRequiredEnv("ASSISTANT_DEFAULT_PASSWORD")),
@@ -159,6 +213,29 @@ async function ensureInternalUsers(organizationId: string, communityId: string) 
   ]);
 
   return { adminUser, assistantUser };
+}
+
+async function ensureDefaultAdSlots() {
+  for (const slot of defaultAdSlots) {
+    await prisma.adSlot.upsert({
+      where: { slug: slot.slug },
+      update: {
+        title: slot.title,
+        description: slot.description,
+        placement: slot.placement,
+        size: slot.size,
+        isActive: true,
+      },
+      create: {
+        title: slot.title,
+        slug: slot.slug,
+        description: slot.description,
+        placement: slot.placement,
+        size: slot.size,
+        isActive: true,
+      },
+    });
+  }
 }
 
 async function upsertDemoNotices(organizationId: string, communityId: string, noticeSeeds: NoticeSeed[]) {
@@ -467,6 +544,7 @@ async function main() {
   const mode = getSeedMode();
   const { organization, community } = await ensureBaseStructure();
   const { adminUser, assistantUser } = await ensureInternalUsers(organization.id, community.id);
+  await ensureDefaultAdSlots();
 
   if (mode === "demo") {
     await seedDemo(organization.id, community.id, adminUser.id, assistantUser.id);

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AdPlacement } from "@prisma/client";
 import {
   ClipboardList,
   MapPinned,
@@ -9,6 +10,7 @@ import {
   TriangleAlert,
 } from "lucide-react";
 
+import { AdBannerSlot } from "@/components/public/ad-banner-slot";
 import { ReportCard } from "@/components/public/report-card";
 import { ReportsFilters } from "@/components/public/reports-filters";
 import { ReportsMapSection } from "@/components/public/reports-map-section";
@@ -73,7 +75,7 @@ export async function ReportsOverview({ searchParams }: ReportsOverviewProps) {
       <section className="safe-section overflow-hidden">
         <SectionContainer className="space-y-6">
           <div className="reveal-up safe-section safe-card overflow-hidden rounded-[2rem]">
-            <div className="relative z-10 grid gap-6 px-5 py-6 sm:px-8 sm:py-8 xl:grid-cols-[1.1fr_0.9fr]">
+            <div className="relative z-10 grid gap-6 px-4 py-6 sm:px-8 sm:py-8 xl:grid-cols-[1.1fr_0.9fr]">
               <div className="space-y-6">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="muted">Demandas territoriais</Badge>
@@ -84,10 +86,10 @@ export async function ReportsOverview({ searchParams }: ReportsOverviewProps) {
                 </div>
 
                 <div className="space-y-4">
-                  <h1 className="max-w-4xl text-balance text-3xl font-black tracking-tight text-slate-950 sm:text-5xl">
+                  <h1 className="max-w-4xl text-balance text-[2rem] font-black tracking-tight text-slate-950 sm:text-5xl">
                     Demandas registradas pela comunidade
                   </h1>
-                  <p className="max-w-2xl text-base leading-8 text-slate-700 sm:text-lg">
+                  <p className="max-w-2xl text-base leading-7 text-slate-700 sm:text-lg sm:leading-8">
                     Acompanhamento publico de solicitacoes comunitarias com status, prioridade,
                     categoria e historico de atualizacao.
                   </p>
@@ -187,6 +189,10 @@ export async function ReportsOverview({ searchParams }: ReportsOverviewProps) {
           </div>
         </SectionContainer>
       </section>
+
+      <SectionContainer className="space-y-4">
+        <AdBannerSlot position="portal_between_sections" />
+      </SectionContainer>
 
       <SectionContainer className="ds-section grid gap-8 xl:grid-cols-[1.18fr_0.82fr]">
         <section className="space-y-5 reveal-up stagger-1">
@@ -303,6 +309,10 @@ export async function ReportsOverview({ searchParams }: ReportsOverviewProps) {
         )}
 
         <div className="pb-2" />
+      </SectionContainer>
+
+      <SectionContainer className="space-y-4">
+        <AdBannerSlot legacyPlacement={AdPlacement.REPORTS_BOTTOM} position="portal_footer" />
       </SectionContainer>
     </PageContainer>
   );

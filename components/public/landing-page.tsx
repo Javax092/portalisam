@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AdPlacement } from "@prisma/client";
 import {
   ArrowRight,
   BellRing,
@@ -11,7 +12,9 @@ import {
   Workflow,
 } from "lucide-react";
 
+import { AdBannerSlot } from "@/components/public/ad-banner-slot";
 import { ReportCard } from "@/components/public/report-card";
+import { SupportersSection } from "@/components/public/supporters-section";
 import { WhatsAppCta } from "@/components/public/whatsapp-cta";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -23,6 +26,7 @@ import { SectionContainer } from "@/components/ui/section-container";
 import { SectionHeader } from "@/components/ui/section-header";
 import { formatDate, reportStatusLabels } from "@/lib/community";
 import { getPortalOverview } from "@/lib/public-data";
+import { getActiveSponsors } from "@/lib/sponsors";
 import { siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
@@ -69,7 +73,11 @@ const trustItems = [
 ] as const;
 
 export async function LandingPage() {
-  const { notices, recentReports, reportStats } = await getPortalOverview();
+  const [portalOverview, activeSponsors] = await Promise.all([
+    getPortalOverview(),
+    getActiveSponsors(),
+  ]);
+  const { notices, recentReports, reportStats } = portalOverview;
   const totalReports = reportStats.reduce((acc, item) => acc + item._count._all, 0);
   const activeReports = reportStats
     .filter((item) => item.status !== "RESOLVED" && item.status !== "ARCHIVED")
@@ -77,7 +85,7 @@ export async function LandingPage() {
   const resolvedReports = reportStats.find((item) => item.status === "RESOLVED")?._count._all ?? 0;
 
   return (
-    <PageContainer className="pt-4 sm:pt-6">
+    <PageContainer className="pt-2 sm:pt-4">
       <section className="safe-section overflow-hidden">
         <div aria-hidden="true" className="hero-orb hero-orb-one -z-10 pointer-events-none" />
         <div aria-hidden="true" className="hero-orb hero-orb-two -z-10 pointer-events-none" />
@@ -85,8 +93,8 @@ export async function LandingPage() {
           <div className="section-glow reveal-up safe-section safe-card overflow-hidden rounded-[2rem]">
             <div aria-hidden="true" className="safe-bg hero-sheen" />
             <div aria-hidden="true" className="safe-bg tech-mesh opacity-15" />
-            <div className="relative z-10 grid gap-8 px-5 py-8 sm:px-8 sm:py-10 lg:grid-cols-[1.1fr_0.9fr] lg:px-10 lg:py-12">
-              <div className="space-y-7">
+            <div className="relative z-10 grid gap-6 px-4 py-6 sm:px-8 sm:py-10 lg:grid-cols-[1.1fr_0.9fr] lg:px-10 lg:py-12">
+              <div className="space-y-6">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge className="border-slate-200 bg-white text-slate-700" variant="muted">
                     Portal oficial
@@ -98,10 +106,10 @@ export async function LandingPage() {
                 </div>
 
                 <div className="space-y-4">
-                  <h1 className="max-w-4xl text-balance text-3xl font-black tracking-tight text-slate-950 sm:text-5xl lg:text-[4rem] lg:leading-[1.04]">
+                  <h1 className="max-w-4xl text-balance text-[2rem] font-black tracking-tight text-slate-950 sm:text-5xl lg:text-[4rem] lg:leading-[1.04]">
                     Portal institucional para comunicacao oficial, transparencia e acompanhamento territorial.
                   </h1>
-                  <p className="max-w-2xl text-base leading-8 text-slate-700 sm:text-lg">
+                  <p className="max-w-2xl text-base leading-7 text-slate-700 sm:text-lg sm:leading-8">
                     O ISAM Conectado centraliza comunicados, agenda publica, demandas comunitarias e
                     indicadores de acompanhamento em uma experiencia digital clara, segura e acessivel.
                   </p>
@@ -115,7 +123,7 @@ export async function LandingPage() {
                   <Link className={buttonVariants({ size: "lg", variant: "secondary" })} href="/portal">
                     Acessar portal publico
                   </Link>
-                  <WhatsAppCta label="Canal institucional" size="lg" target="community" />
+                  <WhatsAppCta className="hidden sm:inline-flex" label="Canal institucional" size="lg" target="community" />
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-3">
@@ -241,6 +249,10 @@ export async function LandingPage() {
         </SectionContainer>
       </section>
 
+      <SectionContainer className="space-y-4">
+        <AdBannerSlot legacyPlacement={AdPlacement.HOME_TOP} position="portal_top" />
+      </SectionContainer>
+
       <SectionContainer className="ds-section space-y-12">
         <SectionHeader
           align="center"
@@ -301,6 +313,14 @@ export async function LandingPage() {
             title="Nenhuma demanda registrada."
           />
         )}
+      </SectionContainer>
+
+      <SectionContainer className="space-y-4">
+        <AdBannerSlot legacyPlacement={AdPlacement.HOME_MIDDLE} position="portal_between_sections" />
+      </SectionContainer>
+
+      <SectionContainer className="space-y-6">
+        <SupportersSection sponsors={activeSponsors} />
       </SectionContainer>
 
       <SectionContainer className="ds-section">

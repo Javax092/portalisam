@@ -37,12 +37,12 @@ const guideItems = [
 
 export default function ReportPage() {
   return (
-    <PageContainer className="pt-4 sm:pt-6">
+    <PageContainer className="pt-2 sm:pt-4">
       <SectionContainer className="space-y-8">
         <div className="reveal-up safe-section safe-card overflow-hidden rounded-[2rem]">
-          <div className="relative z-10 grid gap-8 px-5 py-6 sm:px-8 sm:py-8 xl:grid-cols-[0.92fr_1.08fr] xl:items-start">
-            <div className="space-y-8">
-              <div className="space-y-4">
+          <div className="relative z-10 grid gap-6 px-4 py-6 sm:px-8 sm:py-8 xl:grid-cols-[0.92fr_1.08fr] xl:items-start">
+            <div className="space-y-6">
+              <div className="space-y-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="muted">Canal oficial</Badge>
                   <Badge>

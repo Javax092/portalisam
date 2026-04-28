@@ -27,7 +27,8 @@ cp .env.example .env
 3. Preencha pelo menos:
 
 - `DATABASE_URL`
-- `JWT_SECRET`
+- `DIRECT_URL`
+- `JWT_SECRET` ou `AUTH_SECRET`
 - `ADMIN_DEFAULT_PASSWORD`
 - `ASSISTANT_DEFAULT_PASSWORD`
 - `NEXT_PUBLIC_APP_URL`
@@ -59,12 +60,24 @@ npm run dev
 ## Variáveis de ambiente
 
 ```env
-DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public"
+DATABASE_URL="postgresql://USER:PASSWORD@HOST-pooler.REGION.aws.neon.tech/DATABASE?sslmode=require&pgbouncer=true"
+DIRECT_URL="postgresql://USER:PASSWORD@HOST.REGION.aws.neon.tech/DATABASE?sslmode=require"
 JWT_SECRET="troque-por-uma-chave-longa-e-segura-com-pelo-menos-32-caracteres"
+AUTH_SECRET=""
+ADMIN_DEFAULT_EMAIL="admin@isam.org"
+ASSISTANT_DEFAULT_EMAIL="assistente@isam.org"
 ADMIN_DEFAULT_PASSWORD="defina-uma-senha-segura-para-o-admin"
 ASSISTANT_DEFAULT_PASSWORD="defina-uma-senha-segura-para-o-assistente"
 NEXT_PUBLIC_APP_URL="https://seu-dominio.vercel.app"
 ```
+
+## Neon + Prisma
+
+- O projeto usa `DATABASE_URL` para runtime com a connection string pooled do Neon.
+- O projeto usa `DIRECT_URL` para migrations e operações diretas do Prisma.
+- A `DATABASE_URL` do Neon deve incluir `sslmode=require&pgbouncer=true`.
+- A `DIRECT_URL` deve usar o host direto do Neon, com `sslmode=require`, sem `pgbouncer=true`.
+- Se o banco Neon estiver inativo, páginas públicas continuam carregando com fallback vazio e o login responde indisponibilidade de banco.
 
 ## Scripts
 
@@ -73,6 +86,7 @@ NEXT_PUBLIC_APP_URL="https://seu-dominio.vercel.app"
 - `npm run start`
 - `npm run lint`
 - `npm run auth:check`
+- `npm run db:check`
 - `npm run prisma:generate`
 - `npm run prisma:migrate`
 - `npm run prisma:deploy`
@@ -83,6 +97,8 @@ NEXT_PUBLIC_APP_URL="https://seu-dominio.vercel.app"
 
 - Email: `admin@isam.org`
 - Senha inicial: vem de `ADMIN_DEFAULT_PASSWORD`
+
+Se `ADMIN_DEFAULT_EMAIL` e `ASSISTANT_DEFAULT_EMAIL` nao forem definidos, o seed usa `admin@isam.org` e `assistente@isam.org` por padrao.
 
 Troque a senha padrão imediatamente após o primeiro login em produção. A senha definida em `ADMIN_DEFAULT_PASSWORD` não deve permanecer como credencial final do ambiente produtivo.
 
@@ -134,17 +150,20 @@ git remote add origin https://github.com/Javax092/portalisam.git
 git push -u origin main
 ```
 
-2. Criar banco PostgreSQL na Railway
+2. Criar banco no Neon
 
-- Crie um novo projeto na Railway.
-- Adicione um serviço PostgreSQL.
-- Copie a `DATABASE_URL` fornecida pela Railway.
+- Crie ou abra o projeto no Neon.
+- Garanta que o banco esteja ativo no dashboard.
+- Em `Dashboard > Connect`, copie:
+  - a pooled connection string para `DATABASE_URL`
+  - a direct connection string para `DIRECT_URL`
 
 3. Configurar a URL do banco
 
-- Use a URL do PostgreSQL da Railway em:
-  - `DATABASE_URL`
-- Se a URL interna da Railway não funcionar na Vercel, use a URL pública do banco.
+- Use a URL pooled do Neon em `DATABASE_URL`.
+- Use a URL direct do Neon em `DIRECT_URL`.
+- Garanta `sslmode=require` nas duas URLs.
+- Se a URL pooled for usada no runtime, adicione `pgbouncer=true`.
 
 4. Importar o repositório na Vercel
 
@@ -158,14 +177,17 @@ git push -u origin main
 5. Configurar variáveis na Vercel
 
 - `DATABASE_URL`
-- `JWT_SECRET`
+- `DIRECT_URL`
+- `JWT_SECRET` ou `AUTH_SECRET`
 - `ADMIN_DEFAULT_PASSWORD`
 - `ASSISTANT_DEFAULT_PASSWORD`
+- `ADMIN_DEFAULT_EMAIL` opcional
+- `ASSISTANT_DEFAULT_EMAIL` opcional
 - `NEXT_PUBLIC_APP_URL`
 
 6. Rodar migrations em produção
 
-Opção A, com a `DATABASE_URL` de produção no terminal local:
+Opção A, com `DATABASE_URL` e `DIRECT_URL` de produção no terminal local:
 
 ```bash
 npx prisma migrate deploy
@@ -187,15 +209,18 @@ npx prisma db seed
 
 - Depois das variáveis configuradas e migrations aplicadas, conclua o deploy na Vercel.
 
-## Railway PostgreSQL
+## Operação do banco
 
-1. Criar novo projeto na Railway.
-2. Adicionar PostgreSQL.
-3. Copiar a `DATABASE_URL`.
-4. Usar essa URL na Vercel como:
-   - `DATABASE_URL`
+1. Confirme no Neon que o banco está ativo.
+2. Em `Dashboard > Connect`, copie a connection string correta.
+3. Use a pooled URL em `DATABASE_URL`.
+4. Use a direct URL em `DIRECT_URL`.
+5. Rode:
 
-Se a URL interna da Railway não funcionar na Vercel, use a URL pública do banco.
+```bash
+npx prisma migrate deploy
+npx prisma db seed
+```
 
 ## Vercel
 
@@ -211,9 +236,12 @@ npm run build
 5. Variáveis obrigatórias:
 
 - `DATABASE_URL`
-- `JWT_SECRET`
+- `DIRECT_URL`
+- `JWT_SECRET` ou `AUTH_SECRET`
 - `ADMIN_DEFAULT_PASSWORD`
 - `ASSISTANT_DEFAULT_PASSWORD`
+- `ADMIN_DEFAULT_EMAIL` opcional
+- `ASSISTANT_DEFAULT_EMAIL` opcional
 - `NEXT_PUBLIC_APP_URL`
 
 Observações importantes para evitar `404` em produção:
@@ -242,6 +270,7 @@ npm install
 npm run lint
 npx prisma generate
 npm run build
+npm run db:check
 ```
 
 - admin@isam.org ADMIN

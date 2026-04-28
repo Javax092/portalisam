@@ -1,11 +1,19 @@
 import { NextResponse } from "next/server";
 
+import { authErrorResponse } from "@/lib/auth/http";
 import { authConfig } from "@/lib/auth/config";
 import { logAuthDiagnostic, getSafeEnvCheckLog } from "@/lib/auth/logging";
 import { canAccessBackoffice } from "@/lib/auth/roles";
 import { createUserSession } from "@/lib/auth/server";
 import { verifyPassword } from "@/lib/auth/password";
-import { getDatabaseUrlMessage, hasDatabaseUrl, isMissingDatabaseUrlError, prisma } from "@/lib/db/prisma";
+import {
+  getDatabaseUrlMessage,
+  hasDatabaseUrl,
+  isDatabaseConnectionError,
+  isMissingDatabaseUrlError,
+  logDatabaseError,
+  prisma,
+} from "@/lib/db/prisma";
 import { isAuthConfigurationError, validateAuthEnv } from "@/lib/env";
 import { loginSchema } from "@/lib/validations/auth";
 
@@ -19,9 +27,10 @@ export async function POST(request: Request) {
   const parsed = loginSchema.safeParse(body);
 
   if (!parsed.success) {
-    return NextResponse.json(
-      { message: parsed.error.issues[0]?.message ?? "Dados de login invalidos." },
-      { status: 400 },
+    return authErrorResponse(
+      parsed.error.issues[0]?.message ?? "Dados de login invalidos.",
+      400,
+      "AUTH_BAD_REQUEST",
     );
   }
 
@@ -29,19 +38,29 @@ export async function POST(request: Request) {
   logAuthDiagnostic("ENV_CHECK", envCheck);
 
   if (!hasDatabaseUrl()) {
-    return NextResponse.json(
-      {
-        message:
-          process.env.NODE_ENV === "development"
-            ? getDatabaseUrlMessage()
-            : "Servidor de autenticacao indisponivel.",
-      },
-      { status: 500 },
+    return authErrorResponse(
+      process.env.NODE_ENV === "development"
+        ? getDatabaseUrlMessage()
+        : "Servidor de autenticacao indisponivel.",
+      500,
+      "AUTH_SERVER_UNAVAILABLE",
     );
   }
 
   try {
     validateAuthEnv();
+    try {
+      await prisma.$connect();
+      logAuthDiagnostic("PRISMA_CONNECTION", { connected: true });
+    } catch (error) {
+      logDatabaseError("auth.login.connect", error);
+      logAuthDiagnostic("PRISMA_CONNECTION", {
+        connected: false,
+        name: error instanceof Error ? error.name : "UnknownError",
+        message: error instanceof Error ? error.message : "Erro desconhecido.",
+      });
+      throw error;
+    }
 
     const normalizedEmail = parsed.data.email.trim().toLowerCase();
     const user = await prisma.user.findUnique({
@@ -63,14 +82,11 @@ export async function POST(request: Request) {
     });
 
     if (!user) {
-      return NextResponse.json({ message: "Credenciais invalidas." }, { status: 401 });
+      return authErrorResponse("Credenciais invalidas.", 401, "AUTH_UNAUTHORIZED");
     }
 
     if (!user.isActive) {
-      return NextResponse.json(
-        { message: "Usuario inativo." },
-        { status: 403 },
-      );
+      return authErrorResponse("Usuario inativo.", 403, "AUTH_FORBIDDEN");
     }
 
     const isValidPassword = await verifyPassword(parsed.data.password, user.passwordHash);
@@ -81,13 +97,14 @@ export async function POST(request: Request) {
     });
 
     if (!isValidPassword) {
-      return NextResponse.json({ message: "Credenciais invalidas." }, { status: 401 });
+      return authErrorResponse("Credenciais invalidas.", 401, "AUTH_UNAUTHORIZED");
     }
 
     if (!canAccessBackoffice(user.role)) {
-      return NextResponse.json(
-        { message: "Acesso nao autorizado. Apenas administradores ativos podem entrar no painel." },
-        { status: 403 },
+      return authErrorResponse(
+        "Acesso nao autorizado. Apenas administradores ativos podem entrar no painel.",
+        403,
+        "AUTH_FORBIDDEN",
       );
     }
 
@@ -105,16 +122,38 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json(
-      {
-        message:
-          isAuthConfigurationError(error)
-            ? "Configuracao de autenticacao ausente no servidor."
-            : process.env.NODE_ENV === "development" && isMissingDatabaseUrlError(error)
-            ? getDatabaseUrlMessage()
-            : "Servidor de autenticacao indisponivel.",
-      },
-      { status: 500 },
+    if (isDatabaseConnectionError(error)) {
+      logDatabaseError("auth.login.failure", error);
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "DATABASE_UNAVAILABLE",
+            message: "Banco de dados indisponível no momento.",
+          },
+        },
+        { status: 503 },
+      );
+    }
+
+    logAuthDiagnostic("LOGIN_FAILURE", {
+      name: error instanceof Error ? error.name : "UnknownError",
+      message: error instanceof Error ? error.message : "Erro desconhecido.",
+      prismaMissingDatabaseUrl: isMissingDatabaseUrlError(error),
+    });
+
+    if (isAuthConfigurationError(error)) {
+      return authErrorResponse("Configuracao de autenticacao ausente no servidor.", 500, "AUTH_CONFIG_ERROR");
+    }
+
+    if (process.env.NODE_ENV === "development" && isMissingDatabaseUrlError(error)) {
+      return authErrorResponse(getDatabaseUrlMessage(), 500, "AUTH_SERVER_UNAVAILABLE");
+    }
+
+    return authErrorResponse(
+      "Servidor de autenticacao indisponivel.",
+      500,
+      "AUTH_SERVER_UNAVAILABLE",
     );
   }
 }

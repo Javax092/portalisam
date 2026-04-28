@@ -18,12 +18,12 @@ export default async function LoginPage() {
 
   return (
     <PageContainer
-      className="bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.16),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(16,185,129,0.14),_transparent_24%),linear-gradient(180deg,_#020617,_#0f172a_48%,_#111827)] py-6 text-white sm:py-10"
+      className="bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.16),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(16,185,129,0.14),_transparent_24%),linear-gradient(180deg,_#020617,_#0f172a_48%,_#111827)] py-4 text-white sm:py-10"
       variant="immersive"
     >
-      <SectionContainer className="flex min-h-[calc(100vh-3rem)] items-center">
+      <SectionContainer className="flex min-h-screen items-center py-4 sm:min-h-[calc(100vh-3rem)]">
         <div className="grid w-full gap-6 xl:grid-cols-[1fr_420px] xl:items-center">
-          <div className="space-y-6 reveal-up">
+          <div className="space-y-5 reveal-up">
             <div className="flex flex-wrap items-center gap-2">
               <Badge className="border-white/10 bg-slate-900 text-white" variant="muted">
                 Acesso administrativo
@@ -35,10 +35,10 @@ export default async function LoginPage() {
             </div>
 
             <div className="space-y-4">
-              <h1 className="max-w-3xl text-balance text-3xl font-black tracking-tight sm:text-5xl lg:text-6xl">
+              <h1 className="max-w-3xl text-balance text-[2.25rem] font-black tracking-tight sm:text-5xl lg:text-6xl">
                 Acesso administrativo
               </h1>
-              <p className="max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
+              <p className="max-w-2xl text-base leading-7 text-slate-300 sm:text-lg sm:leading-8">
                 Ambiente restrito para gestao institucional do portal, comunicados, eventos e acompanhamento de demandas.
               </p>
             </div>

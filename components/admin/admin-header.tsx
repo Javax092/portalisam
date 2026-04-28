@@ -15,14 +15,14 @@ export function AdminHeader({ currentPath, userName, userRole }: AdminHeaderProp
   return (
     <div className="space-y-4">
       <div className="reveal-up overflow-hidden rounded-[2rem] safe-dark-card shadow-[0_28px_80px_rgba(15,23,42,0.14)]">
-        <div className="space-y-6 p-6">
-          <div className="flex items-start justify-between gap-4">
+        <div className="space-y-5 p-5 sm:p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="space-y-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-700 bg-slate-900 text-sky-200">
                 <LayoutDashboard className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-lg font-bold tracking-tight text-white">Painel administrativo institucional</p>
+                <p className="text-base font-bold tracking-tight text-white sm:text-lg">Painel administrativo institucional</p>
                 <p className="mt-1 text-sm leading-6 text-slate-300">
                   Gestao institucional do portal com leitura executiva sobre comunicados, agenda e demandas.
                 </p>

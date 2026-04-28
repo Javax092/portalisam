@@ -2,6 +2,8 @@
 
 import { usePathname } from "next/navigation";
 
+import { InstallAppButton } from "@/components/pwa/install-app-button";
+import { MobileBottomNav } from "@/components/public/mobile-bottom-nav";
 import { SiteFooter } from "@/components/public/site-footer";
 import { SiteHeader } from "@/components/public/site-header";
 
@@ -14,6 +16,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {hideChrome ? null : <SiteHeader />}
       <div className="flex-1">{children}</div>
       {hideChrome ? null : <SiteFooter />}
+      {hideChrome ? null : <InstallAppButton />}
+      {hideChrome ? null : <MobileBottomNav />}
     </div>
   );
 }

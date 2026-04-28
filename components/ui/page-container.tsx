@@ -7,7 +7,8 @@ type PageContainerProps = {
 };
 
 const variants = {
-  public: "relative isolate w-full max-w-full overflow-hidden pb-24 pt-28 sm:pt-32",
+  public:
+    "relative isolate w-full max-w-full overflow-hidden pb-[calc(env(safe-area-inset-bottom)+7.75rem)] pt-24 sm:pb-24 sm:pt-[7.5rem]",
   admin: "relative isolate w-full max-w-full overflow-hidden",
   immersive: "relative isolate min-h-screen w-full max-w-full overflow-hidden",
 } as const;

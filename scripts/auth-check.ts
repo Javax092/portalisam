@@ -20,7 +20,14 @@ async function main() {
   console.info("[auth:check] ENV", {
     databaseUrlExists: envStatus.databaseUrlExists,
     jwtSecretExists: envStatus.jwtSecretExists,
+    authSecretExists: envStatus.authSecretExists,
+    effectiveJwtSecretExists: envStatus.effectiveJwtSecretExists,
+    effectiveJwtSecretSource: envStatus.effectiveJwtSecretSource,
     jwtSecretLength: envStatus.jwtSecretLength,
+    adminDefaultPasswordExists: envStatus.adminDefaultPasswordExists,
+    adminDefaultEmailExists: envStatus.adminDefaultEmailExists,
+    assistantDefaultPasswordExists: envStatus.assistantDefaultPasswordExists,
+    assistantDefaultEmailExists: envStatus.assistantDefaultEmailExists,
     nodeEnv: envStatus.nodeEnv || "undefined",
     nodeEnvValid: envStatus.nodeEnvValid,
   });
@@ -29,12 +36,12 @@ async function main() {
     failures.push("DATABASE_URL ausente.");
   }
 
-  if (!envStatus.jwtSecretExists) {
-    failures.push("JWT_SECRET ausente.");
+  if (!envStatus.effectiveJwtSecretExists) {
+    failures.push("JWT_SECRET ou AUTH_SECRET ausente.");
   }
 
   if (envStatus.jwtSecretLength > 0 && envStatus.jwtSecretLength < 32) {
-    failures.push("JWT_SECRET com menos de 32 caracteres.");
+    failures.push(`${envStatus.effectiveJwtSecretSource ?? "JWT_SECRET"} com menos de 32 caracteres.`);
   }
 
   if (!envStatus.nodeEnvValid) {

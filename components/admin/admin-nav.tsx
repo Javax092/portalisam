@@ -3,6 +3,7 @@ import {
   BellRing,
   ClipboardList,
   LayoutDashboard,
+  Megaphone,
   Settings2,
   CalendarRange,
 } from "lucide-react";
@@ -16,6 +17,7 @@ const adminLinks = [
   { href: "/admin/notices", label: "Comunicados", icon: BellRing },
   { href: "/admin/events", label: "Agenda institucional", icon: CalendarRange },
   { href: "/admin/reports", label: "Demandas", icon: ClipboardList },
+  { href: "/admin/ad-banners", label: "Anuncios e patrocinadores", icon: Megaphone },
   { href: "/admin/settings", label: "Dados institucionais", icon: Settings2 },
 ] as const;
 

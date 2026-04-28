@@ -1,14 +1,21 @@
 import { Prisma } from "@prisma/client";
 
-import { hasDatabaseUrl, prisma } from "@/lib/db/prisma";
+import { hasDatabaseUrl, logDatabaseError, prisma } from "@/lib/db/prisma";
 import {
   buildPublicReportWhere,
   getPaginationMeta,
   normalizePage,
   publicReportsPageSize,
 } from "@/lib/reports";
+export { getActiveAdvertisementsByPlacement, getActiveSponsors, getSponsorOverview } from "@/lib/sponsors";
 
 const emptyReportStats: Array<{ status: string; _count: { _all: number } }> = [];
+const emptyPortalOverview = {
+  notices: [],
+  events: [],
+  reportStats: emptyReportStats,
+  recentReports: [],
+};
 
 const publicReportSelect = {
   id: true,
@@ -31,12 +38,7 @@ const publicReportSelect = {
 
 export async function getPortalOverview() {
   if (!hasDatabaseUrl()) {
-    return {
-      notices: [],
-      events: [],
-      reportStats: emptyReportStats,
-      recentReports: [],
-    };
+    return emptyPortalOverview;
   }
 
   try {
@@ -68,13 +70,9 @@ export async function getPortalOverview() {
       reportStats,
       recentReports,
     };
-  } catch {
-    return {
-      notices: [],
-      events: [],
-      reportStats: emptyReportStats,
-      recentReports: [],
-    };
+  } catch (error) {
+    logDatabaseError("getPortalOverview", error);
+    return emptyPortalOverview;
   }
 }
 
@@ -89,7 +87,7 @@ export async function getPublicReports(filters?: {
   if (!hasDatabaseUrl()) {
     return {
       reports: [],
-      pagination: getPaginationMeta(0, 1, publicReportsPageSize),
+      pagination: getPaginationMeta(0, normalizePage(filters?.page), publicReportsPageSize),
     };
   }
 
@@ -112,10 +110,11 @@ export async function getPublicReports(filters?: {
       reports,
       pagination: getPaginationMeta(totalItems, page, publicReportsPageSize),
     };
-  } catch {
+  } catch (error) {
+    logDatabaseError("getPublicReports", error, { page });
     return {
       reports: [],
-      pagination: getPaginationMeta(0, 1, publicReportsPageSize),
+      pagination: getPaginationMeta(0, page, publicReportsPageSize),
     };
   }
 }
@@ -131,7 +130,8 @@ export async function getPublicNotices() {
       orderBy: [{ isFeatured: "desc" }, { publishedAt: "desc" }, { createdAt: "desc" }],
       take: 10,
     });
-  } catch {
+  } catch (error) {
+    logDatabaseError("getPublicNotices", error);
     return [];
   }
 }
@@ -147,7 +147,8 @@ export async function getPublicEvents() {
       orderBy: { startsAt: "asc" },
       take: 10,
     });
-  } catch {
+  } catch (error) {
+    logDatabaseError("getPublicEvents", error);
     return [];
   }
 }

@@ -1,7 +1,9 @@
 import { Prisma, ReportStatus, UserRole } from "@prisma/client";
 
+import { getAdminAdBanners } from "@/lib/ad-banners";
 import { adminReportsPageSize, buildAdminReportWhere, getPaginationMeta, normalizePage } from "@/lib/reports";
 import { hasDatabaseUrl, prisma } from "@/lib/db/prisma";
+import { getSponsorOverview } from "@/lib/sponsors";
 
 const emptyDashboardData = {
   totals: {
@@ -10,6 +12,9 @@ const emptyDashboardData = {
     reports: 0,
     openReports: 0,
     resolvedReports: 0,
+    activeSponsors: 0,
+    activeCampaigns: 0,
+    availableAdSlots: 0,
   },
   recentNotices: [],
   recentEvents: [],
@@ -54,7 +59,7 @@ export async function getAdminDashboardData() {
   }
 
   try {
-    const [noticeCount, eventCount, reportCount, openReports, resolvedReports, recentNotices, recentEvents, recentReports] =
+    const [noticeCount, eventCount, reportCount, openReports, resolvedReports, recentNotices, recentEvents, recentReports, sponsorOverview] =
       await Promise.all([
         prisma.notice.count(),
         prisma.event.count(),
@@ -86,6 +91,7 @@ export async function getAdminDashboardData() {
           orderBy: [{ lastActivityAt: "desc" }, { updatedAt: "desc" }],
           take: 4,
         }),
+        getSponsorOverview(),
       ]);
 
     return {
@@ -95,6 +101,9 @@ export async function getAdminDashboardData() {
         reports: reportCount,
         openReports,
         resolvedReports,
+        activeSponsors: sponsorOverview.activeSponsors,
+        activeCampaigns: sponsorOverview.activeCampaigns,
+        availableAdSlots: sponsorOverview.availableSlots,
       },
       recentNotices,
       recentEvents,
@@ -103,6 +112,14 @@ export async function getAdminDashboardData() {
   } catch {
     return emptyDashboardData;
   }
+}
+
+export async function getAdminSponsorsModuleData() {
+  return await getSponsorOverview();
+}
+
+export async function getAdminAdBannersData() {
+  return await getAdminAdBanners();
 }
 
 export async function getAdminNotices() {

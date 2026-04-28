@@ -1,5 +1,7 @@
 import { LandingPage } from "@/components/public/landing-page";
 
+export const dynamic = "force-dynamic";
+
 export default function HomePage() {
   return <LandingPage />;
 }
